@@ -1,0 +1,11 @@
+---
+title: "test"
+author: "Matthew Beaumont"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{bash, eval=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
