@@ -1,5 +1,7 @@
 # DNA
-
+```{bash}
+myfile-example.fastq
+```
 
 # RNA
 
