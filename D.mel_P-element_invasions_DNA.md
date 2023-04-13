@@ -1,7 +1,7 @@
 D.mel P-element invasions
 ================
 Matthew Beaumont
-2023-03-31
+2023-04-13
 
 ``` bash
 knitr::opts_chunk$set(echo = TRUE)
@@ -9,8 +9,59 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Read trimming
 
-All fq.gz read files were trimmed to the minimum read length of the
-shortest reads from all files (100) for uniformity.
+All of the following .fq.gz read files were trimmed to the minimum read
+length of the shortest reads from all files (100) for uniformity.
+
+``` bash
+cd /Volumes/Data/Projects/DmelR2_P-ele/fastq/raw 
+ls -lh
+```
+
+    ## total 191486464
+    ## -rw-r--r--@ 1 mbeaumont  staff   1.0G Mar 22 18:06 dmel_naive_CATTTT_1.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.2G Mar 22 18:08 dmel_naive_CATTTT_2.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.2G Mar 22 18:08 mel_R1G01_CGATGT_1.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.1G Mar 22 18:06 mel_R1G01_CGATGT_2.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.2G Mar 22 17:59 mel_R1G10_ACAGTG_1.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.2G Mar 22 18:03 mel_R1G10_ACAGTG_2.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.5G Mar 22 18:05 mel_R1G20_ACTTGA_1.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.4G Mar 22 18:07 mel_R1G20_ACTTGA_2.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.8G Mar 22 17:58 mel_R1G34_GTAGAG_1.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.7G Mar 22 18:03 mel_R1G34_GTAGAG_2.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.0G Mar 22 18:04 mel_R1G40_GTAGAG_1.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.1G Mar 22 18:01 mel_R1G40_GTAGAG_2.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.9G Mar 22 18:04 mel_R1G48_GTAGAG_1.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.9G Mar 22 18:00 mel_R1G48_GTAGAG_2.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.0G Mar 22 17:58 mel_R1G63_ATCACG_1.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.1G Mar 22 18:01 mel_R1G63_ATCACG_2.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.4G Mar 22 18:02 mel_R2G01_TTAGGC_1.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.3G Mar 22 17:59 mel_R2G01_TTAGGC_2.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.2G Mar 22 18:05 mel_R2G10_GCCAAT_1.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.1G Mar 22 18:07 mel_R2G10_GCCAAT_2.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.3G Mar 22 18:07 mel_R2G20_GGCTAC_1.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.3G Mar 22 18:05 mel_R2G20_GGCTAC_2.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.6G Mar 22 17:59 mel_R2G34_GGTAGC_1.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.5G Mar 22 18:02 mel_R2G34_GGTAGC_2.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.0G Mar 22 18:04 mel_R2G40_GGTAGC_1.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.1G Mar 22 18:00 mel_R2G40_GGTAGC_2.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.9G Mar 22 18:04 mel_R2G48_GGTAGC_1.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.9G Mar 22 18:01 mel_R2G48_GGTAGC_2.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.5G Mar 22 18:06 mel_R2G63_CGATGT_1.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.6G Mar 22 18:07 mel_R2G63_CGATGT_2.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.3G Mar 22 18:02 mel_R3G01_TGACCA_1.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.2G Mar 22 17:57 mel_R3G01_TGACCA_2.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.5G Mar 22 18:05 mel_R3G10_CAGATC_1.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.4G Mar 22 18:00 mel_R3G10_CAGATC_2.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.0G Mar 22 18:08 mel_R3G20_CTTGTA_1.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.9G Mar 22 18:06 mel_R3G20_CTTGTA_2.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.9G Mar 22 18:00 mel_R3G34_ATGAGC_1.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.8G Mar 22 18:03 mel_R3G34_ATGAGC_2.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.8G Mar 22 18:02 mel_R3G40_ATGAGC_1.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.9G Mar 22 17:58 mel_R3G40_ATGAGC_2.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.8G Mar 22 18:02 mel_R3G48_ATGAGC_1.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.8G Mar 22 17:58 mel_R3G48_ATGAGC_2.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.2G Mar 22 18:03 mel_R3G63_TTAGGC_1.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.9G Mar 22 17:59 mel_R3G63_TTAGGC_2.fq.gz
 
 ``` bash
 nohup bash scripts/trim.sh > trim.log &
@@ -27,11 +78,63 @@ for i in fastq/*.fq.gz
         done
 ```
 
+The following trimmed .fq.gz files were generated.
+
+``` bash
+cd /Volumes/Data/Projects/DmelR2_P-ele/fastq/trimmed
+ls -lh
+```
+
+    ## total 132388592
+    ## -rw-r--r--  1 mbeaumont  staff   837M Mar 27 15:33 dmel_naive_CATTTT_1_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   823M Mar 27 15:52 dmel_naive_CATTTT_2_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.4G Mar 27 16:29 mel_R1G01_CGATGT_1_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.4G Mar 27 17:02 mel_R1G01_CGATGT_2_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.5G Mar 27 17:40 mel_R1G10_ACAGTG_1_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.4G Mar 27 18:14 mel_R1G10_ACAGTG_2_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.7G Mar 27 18:56 mel_R1G20_ACTTGA_1_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.6G Mar 27 19:34 mel_R1G20_ACTTGA_2_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.2G Mar 27 20:02 mel_R1G34_GTAGAG_1_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.2G Mar 27 20:30 mel_R1G34_GTAGAG_2_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.4G Mar 27 21:02 mel_R1G40_GTAGAG_1_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.4G Mar 27 21:35 mel_R1G40_GTAGAG_2_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.3G Mar 27 22:04 mel_R1G48_GTAGAG_1_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.3G Mar 27 22:32 mel_R1G48_GTAGAG_2_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.6G Mar 27 23:17 mel_R1G63_ATCACG_1_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.6G Mar 28 00:10 mel_R1G63_ATCACG_2_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.6G Mar 28 00:48 mel_R2G01_TTAGGC_1_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.5G Mar 28 01:22 mel_R2G01_TTAGGC_2_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.5G Mar 28 01:58 mel_R2G10_GCCAAT_1_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.4G Mar 28 02:29 mel_R2G10_GCCAAT_2_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.5G Mar 28 03:06 mel_R2G20_GGCTAC_1_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.5G Mar 28 03:40 mel_R2G20_GGCTAC_2_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.0G Mar 28 04:04 mel_R2G34_GGTAGC_1_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.0G Mar 28 04:26 mel_R2G34_GGTAGC_2_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.3G Mar 28 04:55 mel_R2G40_GGTAGC_1_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.4G Mar 28 05:26 mel_R2G40_GGTAGC_2_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.3G Mar 28 05:52 mel_R2G48_GGTAGC_1_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.3G Mar 28 06:19 mel_R2G48_GGTAGC_2_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.0G Mar 28 07:11 mel_R2G63_CGATGT_1_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.0G Mar 28 08:09 mel_R2G63_CGATGT_2_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.5G Mar 28 08:46 mel_R3G01_TGACCA_1_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.5G Mar 28 09:19 mel_R3G01_TGACCA_2_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.6G Mar 28 09:58 mel_R3G10_CAGATC_1_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.6G Mar 28 10:33 mel_R3G10_CAGATC_2_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.3G Mar 28 11:05 mel_R3G20_CTTGTA_1_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.3G Mar 28 11:35 mel_R3G20_CTTGTA_2_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.2G Mar 28 12:04 mel_R3G34_ATGAGC_1_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.2G Mar 28 12:31 mel_R3G34_ATGAGC_2_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.9G Mar 28 13:12 mel_R3G40_ATGAGC_1_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   2.0G Mar 28 13:56 mel_R3G40_ATGAGC_2_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.2G Mar 28 14:21 mel_R3G48_ATGAGC_1_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.2G Mar 28 14:46 mel_R3G48_ATGAGC_2_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.7G Mar 28 15:31 mel_R3G63_TTAGGC_1_trimmed.fq.gz
+    ## -rw-r--r--  1 mbeaumont  staff   1.8G Mar 28 16:27 mel_R3G63_TTAGGC_2_trimmed.fq.gz
+
 # TE Mapping
 
-TEMiner was used to generate .bam files of the trimmed .fq.gz read
-files. The fast-miner.sh script was altered to accommodate the altered
-file name for the trimmed read files.
+The fast-miner.sh script was altered to accommodate the altered file
+name for the trimmed read files.
 
 ``` bash
 nohup zsh fastq-miner-trimmed.sh mel /Volumes/Data/Projects/DmelR2_P-ele/fastq/trimmed > /Volumes/Data/Projects/DmelR2_P-ele/logs/mel.log &
@@ -108,6 +211,86 @@ do
 done 
 ```
 
+This altered fast-miner.sh TEMiner script was then used to generate the
+following .bam and .rpm files from the trimmed .fq.gz read files.
+
+``` bash
+cd /Volumes/Data/Projects/DmelR2_P-ele/software/teminer-code-r10/results/mel/bam
+ls -lh
+
+cd /Volumes/Data/Projects/DmelR2_P-ele/software/teminer-code-r10/results/mel/rpm
+ls -lh
+```
+
+    ## total 7729728
+    ## -rw-r--r--  1 mbeaumont  staff   102M Mar 28 18:35 dmel_naive_CATTTT_1_trimmed.fq.gz.allte.sort.bam
+    ## -rw-r--r--  1 mbeaumont  staff   169M Mar 28 19:41 mel_R1G01_CGATGT_1_trimmed.fq.gz.allte.sort.bam
+    ## -rw-r--r--  1 mbeaumont  staff   170M Mar 28 20:50 mel_R1G10_ACAGTG_1_trimmed.fq.gz.allte.sort.bam
+    ## -rw-r--r--  1 mbeaumont  staff   194M Mar 28 22:07 mel_R1G20_ACTTGA_1_trimmed.fq.gz.allte.sort.bam
+    ## -rw-r--r--  1 mbeaumont  staff   142M Mar 28 23:03 mel_R1G34_GTAGAG_1_trimmed.fq.gz.allte.sort.bam
+    ## -rw-r--r--  1 mbeaumont  staff   168M Mar 29 00:11 mel_R1G40_GTAGAG_1_trimmed.fq.gz.allte.sort.bam
+    ## -rw-r--r--  1 mbeaumont  staff   156M Mar 29 01:14 mel_R1G48_GTAGAG_1_trimmed.fq.gz.allte.sort.bam
+    ## -rw-r--r--  1 mbeaumont  staff   180M Mar 29 02:40 mel_R1G63_ATCACG_1_trimmed.fq.gz.allte.sort.bam
+    ## -rw-r--r--  1 mbeaumont  staff   185M Mar 29 03:54 mel_R2G01_TTAGGC_1_trimmed.fq.gz.allte.sort.bam
+    ## -rw-r--r--  1 mbeaumont  staff   174M Mar 29 05:02 mel_R2G10_GCCAAT_1_trimmed.fq.gz.allte.sort.bam
+    ## -rw-r--r--  1 mbeaumont  staff   185M Mar 29 06:13 mel_R2G20_GGCTAC_1_trimmed.fq.gz.allte.sort.bam
+    ## -rw-r--r--  1 mbeaumont  staff   125M Mar 29 07:03 mel_R2G34_GGTAGC_1_trimmed.fq.gz.allte.sort.bam
+    ## -rw-r--r--  1 mbeaumont  staff   177M Mar 29 08:09 mel_R2G40_GGTAGC_1_trimmed.fq.gz.allte.sort.bam
+    ## -rw-r--r--  1 mbeaumont  staff   156M Mar 29 09:12 mel_R2G48_GGTAGC_1_trimmed.fq.gz.allte.sort.bam
+    ## -rw-r--r--  1 mbeaumont  staff   220M Mar 29 11:03 mel_R2G63_CGATGT_1_trimmed.fq.gz.allte.sort.bam
+    ## -rw-r--r--  1 mbeaumont  staff   182M Mar 29 12:17 mel_R3G01_TGACCA_1_trimmed.fq.gz.allte.sort.bam
+    ## -rw-r--r--  1 mbeaumont  staff   187M Mar 29 13:33 mel_R3G10_CAGATC_1_trimmed.fq.gz.allte.sort.bam
+    ## -rw-r--r--  1 mbeaumont  staff   162M Mar 29 14:34 mel_R3G20_CTTGTA_1_trimmed.fq.gz.allte.sort.bam
+    ## -rw-r--r--  1 mbeaumont  staff   149M Mar 29 15:33 mel_R3G34_ATGAGC_1_trimmed.fq.gz.allte.sort.bam
+    ## -rw-r--r--  1 mbeaumont  staff   240M Mar 29 17:08 mel_R3G40_ATGAGC_1_trimmed.fq.gz.allte.sort.bam
+    ## -rw-r--r--  1 mbeaumont  staff   151M Mar 29 18:08 mel_R3G48_ATGAGC_1_trimmed.fq.gz.allte.sort.bam
+    ## -rw-r--r--  1 mbeaumont  staff   200M Mar 29 19:41 mel_R3G63_TTAGGC_1_trimmed.fq.gz.allte.sort.bam
+    ## total 704
+    ## -rw-r--r--  1 mbeaumont  staff   2.3K Mar 28 18:36 dmel_naive_CATTTT_1_trimmed.fq.gz.rawabu
+    ## -rw-r--r--  1 mbeaumont  staff   4.9K Mar 28 18:36 dmel_naive_CATTTT_1_trimmed.fq.gz.rpm
+    ## -rw-r--r--  1 mbeaumont  staff   2.3K Mar 28 19:43 mel_R1G01_CGATGT_1_trimmed.fq.gz.rawabu
+    ## -rw-r--r--  1 mbeaumont  staff   4.9K Mar 28 19:43 mel_R1G01_CGATGT_1_trimmed.fq.gz.rpm
+    ## -rw-r--r--  1 mbeaumont  staff   2.3K Mar 28 20:51 mel_R1G10_ACAGTG_1_trimmed.fq.gz.rawabu
+    ## -rw-r--r--  1 mbeaumont  staff   4.9K Mar 28 20:51 mel_R1G10_ACAGTG_1_trimmed.fq.gz.rpm
+    ## -rw-r--r--  1 mbeaumont  staff   2.4K Mar 28 22:08 mel_R1G20_ACTTGA_1_trimmed.fq.gz.rawabu
+    ## -rw-r--r--  1 mbeaumont  staff   4.9K Mar 28 22:08 mel_R1G20_ACTTGA_1_trimmed.fq.gz.rpm
+    ## -rw-r--r--  1 mbeaumont  staff   2.4K Mar 28 23:04 mel_R1G34_GTAGAG_1_trimmed.fq.gz.rawabu
+    ## -rw-r--r--  1 mbeaumont  staff   5.0K Mar 28 23:04 mel_R1G34_GTAGAG_1_trimmed.fq.gz.rpm
+    ## -rw-r--r--  1 mbeaumont  staff   2.4K Mar 29 00:12 mel_R1G40_GTAGAG_1_trimmed.fq.gz.rawabu
+    ## -rw-r--r--  1 mbeaumont  staff   4.9K Mar 29 00:12 mel_R1G40_GTAGAG_1_trimmed.fq.gz.rpm
+    ## -rw-r--r--  1 mbeaumont  staff   2.4K Mar 29 01:16 mel_R1G48_GTAGAG_1_trimmed.fq.gz.rawabu
+    ## -rw-r--r--  1 mbeaumont  staff   5.0K Mar 29 01:16 mel_R1G48_GTAGAG_1_trimmed.fq.gz.rpm
+    ## -rw-r--r--  1 mbeaumont  staff   2.4K Mar 29 02:41 mel_R1G63_ATCACG_1_trimmed.fq.gz.rawabu
+    ## -rw-r--r--  1 mbeaumont  staff   4.9K Mar 29 02:41 mel_R1G63_ATCACG_1_trimmed.fq.gz.rpm
+    ## -rw-r--r--  1 mbeaumont  staff   2.3K Mar 29 03:55 mel_R2G01_TTAGGC_1_trimmed.fq.gz.rawabu
+    ## -rw-r--r--  1 mbeaumont  staff   4.9K Mar 29 03:55 mel_R2G01_TTAGGC_1_trimmed.fq.gz.rpm
+    ## -rw-r--r--  1 mbeaumont  staff   2.4K Mar 29 05:03 mel_R2G10_GCCAAT_1_trimmed.fq.gz.rawabu
+    ## -rw-r--r--  1 mbeaumont  staff   5.0K Mar 29 05:03 mel_R2G10_GCCAAT_1_trimmed.fq.gz.rpm
+    ## -rw-r--r--  1 mbeaumont  staff   2.3K Mar 29 06:14 mel_R2G20_GGCTAC_1_trimmed.fq.gz.rawabu
+    ## -rw-r--r--  1 mbeaumont  staff   4.9K Mar 29 06:14 mel_R2G20_GGCTAC_1_trimmed.fq.gz.rpm
+    ## -rw-r--r--  1 mbeaumont  staff   2.4K Mar 29 07:04 mel_R2G34_GGTAGC_1_trimmed.fq.gz.rawabu
+    ## -rw-r--r--  1 mbeaumont  staff   4.9K Mar 29 07:04 mel_R2G34_GGTAGC_1_trimmed.fq.gz.rpm
+    ## -rw-r--r--  1 mbeaumont  staff   2.4K Mar 29 08:11 mel_R2G40_GGTAGC_1_trimmed.fq.gz.rawabu
+    ## -rw-r--r--  1 mbeaumont  staff   5.0K Mar 29 08:11 mel_R2G40_GGTAGC_1_trimmed.fq.gz.rpm
+    ## -rw-r--r--  1 mbeaumont  staff   2.4K Mar 29 09:13 mel_R2G48_GGTAGC_1_trimmed.fq.gz.rawabu
+    ## -rw-r--r--  1 mbeaumont  staff   4.9K Mar 29 09:13 mel_R2G48_GGTAGC_1_trimmed.fq.gz.rpm
+    ## -rw-r--r--  1 mbeaumont  staff   2.4K Mar 29 11:05 mel_R2G63_CGATGT_1_trimmed.fq.gz.rawabu
+    ## -rw-r--r--  1 mbeaumont  staff   5.0K Mar 29 11:05 mel_R2G63_CGATGT_1_trimmed.fq.gz.rpm
+    ## -rw-r--r--  1 mbeaumont  staff   2.4K Mar 29 12:18 mel_R3G01_TGACCA_1_trimmed.fq.gz.rawabu
+    ## -rw-r--r--  1 mbeaumont  staff   4.9K Mar 29 12:18 mel_R3G01_TGACCA_1_trimmed.fq.gz.rpm
+    ## -rw-r--r--  1 mbeaumont  staff   2.4K Mar 29 13:34 mel_R3G10_CAGATC_1_trimmed.fq.gz.rawabu
+    ## -rw-r--r--  1 mbeaumont  staff   4.9K Mar 29 13:34 mel_R3G10_CAGATC_1_trimmed.fq.gz.rpm
+    ## -rw-r--r--  1 mbeaumont  staff   2.4K Mar 29 14:35 mel_R3G20_CTTGTA_1_trimmed.fq.gz.rawabu
+    ## -rw-r--r--  1 mbeaumont  staff   4.9K Mar 29 14:35 mel_R3G20_CTTGTA_1_trimmed.fq.gz.rpm
+    ## -rw-r--r--  1 mbeaumont  staff   2.3K Mar 29 15:34 mel_R3G34_ATGAGC_1_trimmed.fq.gz.rawabu
+    ## -rw-r--r--  1 mbeaumont  staff   4.9K Mar 29 15:34 mel_R3G34_ATGAGC_1_trimmed.fq.gz.rpm
+    ## -rw-r--r--  1 mbeaumont  staff   2.4K Mar 29 17:09 mel_R3G40_ATGAGC_1_trimmed.fq.gz.rawabu
+    ## -rw-r--r--  1 mbeaumont  staff   5.0K Mar 29 17:09 mel_R3G40_ATGAGC_1_trimmed.fq.gz.rpm
+    ## -rw-r--r--  1 mbeaumont  staff   2.4K Mar 29 18:09 mel_R3G48_ATGAGC_1_trimmed.fq.gz.rawabu
+    ## -rw-r--r--  1 mbeaumont  staff   5.0K Mar 29 18:09 mel_R3G48_ATGAGC_1_trimmed.fq.gz.rpm
+    ## -rw-r--r--  1 mbeaumont  staff   2.4K Mar 29 19:43 mel_R3G63_TTAGGC_1_trimmed.fq.gz.rawabu
+    ## -rw-r--r--  1 mbeaumont  staff   5.0K Mar 29 19:43 mel_R3G63_TTAGGC_1_trimmed.fq.gz.rpm
+
 # P-element copy number estimates
 
 The deviate-family.sh script was run on the resulting .bam and .rpm
@@ -171,6 +354,80 @@ do
 done 
 ```
 
+Generating the following .fq.gz.PPI251 files.
+
+``` bash
+cd /Volumes/Data/Projects/DmelR2_P-ele/software/teminer-code-r10/results/mel/deviate/PPI251
+ls -lh *fq.gz.*
+```
+
+    ## -rw-r--r--@ 1 mbeaumont  staff   407K Mar 30 11:42 dmel_naive_CATTTT_1_trimmed.fq.gz.PPI251
+    ## -rw-r--r--@ 1 mbeaumont  staff    40K Mar 30 11:42 dmel_naive_CATTTT_1_trimmed.fq.gz.PPI251.pdf
+    ## -rw-r--r--  1 mbeaumont  staff   366K Mar 30 11:42 dmel_naive_CATTTT_1_trimmed.fq.gz.PPI251.raw
+    ## -rw-r--r--@ 1 mbeaumont  staff   420K Mar 30 11:47 mel_R1G01_CGATGT_1_trimmed.fq.gz.PPI251
+    ## -rw-r--r--@ 1 mbeaumont  staff    44K Mar 30 11:47 mel_R1G01_CGATGT_1_trimmed.fq.gz.PPI251.pdf
+    ## -rw-r--r--  1 mbeaumont  staff   365K Mar 30 11:47 mel_R1G01_CGATGT_1_trimmed.fq.gz.PPI251.raw
+    ## -rw-r--r--  1 mbeaumont  staff   422K Mar 30 11:52 mel_R1G10_ACAGTG_1_trimmed.fq.gz.PPI251
+    ## -rw-r--r--@ 1 mbeaumont  staff    47K Mar 30 11:52 mel_R1G10_ACAGTG_1_trimmed.fq.gz.PPI251.pdf
+    ## -rw-r--r--  1 mbeaumont  staff   377K Mar 30 11:52 mel_R1G10_ACAGTG_1_trimmed.fq.gz.PPI251.raw
+    ## -rw-r--r--  1 mbeaumont  staff   425K Mar 30 11:58 mel_R1G20_ACTTGA_1_trimmed.fq.gz.PPI251
+    ## -rw-r--r--  1 mbeaumont  staff    60K Mar 30 11:58 mel_R1G20_ACTTGA_1_trimmed.fq.gz.PPI251.pdf
+    ## -rw-r--r--  1 mbeaumont  staff   387K Mar 30 11:58 mel_R1G20_ACTTGA_1_trimmed.fq.gz.PPI251.raw
+    ## -rw-r--r--  1 mbeaumont  staff   436K Mar 30 12:02 mel_R1G34_GTAGAG_1_trimmed.fq.gz.PPI251
+    ## -rw-r--r--  1 mbeaumont  staff    90K Mar 30 12:02 mel_R1G34_GTAGAG_1_trimmed.fq.gz.PPI251.pdf
+    ## -rw-r--r--  1 mbeaumont  staff   391K Mar 30 12:02 mel_R1G34_GTAGAG_1_trimmed.fq.gz.PPI251.raw
+    ## -rw-r--r--  1 mbeaumont  staff   438K Mar 30 12:07 mel_R1G40_GTAGAG_1_trimmed.fq.gz.PPI251
+    ## -rw-r--r--  1 mbeaumont  staff   107K Mar 30 12:07 mel_R1G40_GTAGAG_1_trimmed.fq.gz.PPI251.pdf
+    ## -rw-r--r--  1 mbeaumont  staff   394K Mar 30 12:07 mel_R1G40_GTAGAG_1_trimmed.fq.gz.PPI251.raw
+    ## -rw-r--r--  1 mbeaumont  staff   436K Mar 30 12:12 mel_R1G48_GTAGAG_1_trimmed.fq.gz.PPI251
+    ## -rw-r--r--@ 1 mbeaumont  staff    88K Mar 30 12:12 mel_R1G48_GTAGAG_1_trimmed.fq.gz.PPI251.pdf
+    ## -rw-r--r--  1 mbeaumont  staff   391K Mar 30 12:12 mel_R1G48_GTAGAG_1_trimmed.fq.gz.PPI251.raw
+    ## -rw-r--r--  1 mbeaumont  staff   434K Mar 30 12:18 mel_R1G63_ATCACG_1_trimmed.fq.gz.PPI251
+    ## -rw-r--r--@ 1 mbeaumont  staff    83K Mar 30 12:18 mel_R1G63_ATCACG_1_trimmed.fq.gz.PPI251.pdf
+    ## -rw-r--r--  1 mbeaumont  staff   395K Mar 30 12:18 mel_R1G63_ATCACG_1_trimmed.fq.gz.PPI251.raw
+    ## -rw-r--r--  1 mbeaumont  staff   418K Mar 30 12:24 mel_R2G01_TTAGGC_1_trimmed.fq.gz.PPI251
+    ## -rw-r--r--@ 1 mbeaumont  staff    44K Mar 30 12:24 mel_R2G01_TTAGGC_1_trimmed.fq.gz.PPI251.pdf
+    ## -rw-r--r--  1 mbeaumont  staff   371K Mar 30 12:24 mel_R2G01_TTAGGC_1_trimmed.fq.gz.PPI251.raw
+    ## -rw-r--r--  1 mbeaumont  staff   424K Mar 30 12:28 mel_R2G10_GCCAAT_1_trimmed.fq.gz.PPI251
+    ## -rw-r--r--  1 mbeaumont  staff    51K Mar 30 12:28 mel_R2G10_GCCAAT_1_trimmed.fq.gz.PPI251.pdf
+    ## -rw-r--r--  1 mbeaumont  staff   377K Mar 30 12:28 mel_R2G10_GCCAAT_1_trimmed.fq.gz.PPI251.raw
+    ## -rw-r--r--  1 mbeaumont  staff   423K Mar 30 12:34 mel_R2G20_GGCTAC_1_trimmed.fq.gz.PPI251
+    ## -rw-r--r--  1 mbeaumont  staff    53K Mar 30 12:34 mel_R2G20_GGCTAC_1_trimmed.fq.gz.PPI251.pdf
+    ## -rw-r--r--  1 mbeaumont  staff   381K Mar 30 12:34 mel_R2G20_GGCTAC_1_trimmed.fq.gz.PPI251.raw
+    ## -rw-r--r--  1 mbeaumont  staff   425K Mar 30 12:37 mel_R2G34_GGTAGC_1_trimmed.fq.gz.PPI251
+    ## -rw-r--r--  1 mbeaumont  staff    62K Mar 30 12:37 mel_R2G34_GGTAGC_1_trimmed.fq.gz.PPI251.pdf
+    ## -rw-r--r--  1 mbeaumont  staff   384K Mar 30 12:37 mel_R2G34_GGTAGC_1_trimmed.fq.gz.PPI251.raw
+    ## -rw-r--r--  1 mbeaumont  staff   425K Mar 30 12:42 mel_R2G40_GGTAGC_1_trimmed.fq.gz.PPI251
+    ## -rw-r--r--  1 mbeaumont  staff    64K Mar 30 12:42 mel_R2G40_GGTAGC_1_trimmed.fq.gz.PPI251.pdf
+    ## -rw-r--r--  1 mbeaumont  staff   386K Mar 30 12:42 mel_R2G40_GGTAGC_1_trimmed.fq.gz.PPI251.raw
+    ## -rw-r--r--  1 mbeaumont  staff   427K Mar 30 12:47 mel_R2G48_GGTAGC_1_trimmed.fq.gz.PPI251
+    ## -rw-r--r--  1 mbeaumont  staff    63K Mar 30 12:47 mel_R2G48_GGTAGC_1_trimmed.fq.gz.PPI251.pdf
+    ## -rw-r--r--  1 mbeaumont  staff   386K Mar 30 12:47 mel_R2G48_GGTAGC_1_trimmed.fq.gz.PPI251.raw
+    ## -rw-r--r--  1 mbeaumont  staff   425K Mar 30 12:54 mel_R2G63_CGATGT_1_trimmed.fq.gz.PPI251
+    ## -rw-r--r--@ 1 mbeaumont  staff    73K Mar 30 12:54 mel_R2G63_CGATGT_1_trimmed.fq.gz.PPI251.pdf
+    ## -rw-r--r--@ 1 mbeaumont  staff   388K Mar 30 12:54 mel_R2G63_CGATGT_1_trimmed.fq.gz.PPI251.raw
+    ## -rw-r--r--  1 mbeaumont  staff   419K Mar 30 12:59 mel_R3G01_TGACCA_1_trimmed.fq.gz.PPI251
+    ## -rw-r--r--@ 1 mbeaumont  staff    44K Mar 30 12:59 mel_R3G01_TGACCA_1_trimmed.fq.gz.PPI251.pdf
+    ## -rw-r--r--  1 mbeaumont  staff   371K Mar 30 12:59 mel_R3G01_TGACCA_1_trimmed.fq.gz.PPI251.raw
+    ## -rw-r--r--  1 mbeaumont  staff   420K Mar 30 13:04 mel_R3G10_CAGATC_1_trimmed.fq.gz.PPI251
+    ## -rw-r--r--@ 1 mbeaumont  staff    47K Mar 30 13:04 mel_R3G10_CAGATC_1_trimmed.fq.gz.PPI251.pdf
+    ## -rw-r--r--  1 mbeaumont  staff   377K Mar 30 13:04 mel_R3G10_CAGATC_1_trimmed.fq.gz.PPI251.raw
+    ## -rw-r--r--  1 mbeaumont  staff   423K Mar 30 13:09 mel_R3G20_CTTGTA_1_trimmed.fq.gz.PPI251
+    ## -rw-r--r--@ 1 mbeaumont  staff    54K Mar 30 13:09 mel_R3G20_CTTGTA_1_trimmed.fq.gz.PPI251.pdf
+    ## -rw-r--r--  1 mbeaumont  staff   384K Mar 30 13:09 mel_R3G20_CTTGTA_1_trimmed.fq.gz.PPI251.raw
+    ## -rw-r--r--  1 mbeaumont  staff   435K Mar 30 13:14 mel_R3G34_ATGAGC_1_trimmed.fq.gz.PPI251
+    ## -rw-r--r--@ 1 mbeaumont  staff    92K Mar 30 13:14 mel_R3G34_ATGAGC_1_trimmed.fq.gz.PPI251.pdf
+    ## -rw-r--r--  1 mbeaumont  staff   389K Mar 30 13:14 mel_R3G34_ATGAGC_1_trimmed.fq.gz.PPI251.raw
+    ## -rw-r--r--  1 mbeaumont  staff   438K Mar 30 13:21 mel_R3G40_ATGAGC_1_trimmed.fq.gz.PPI251
+    ## -rw-r--r--@ 1 mbeaumont  staff   118K Mar 30 13:21 mel_R3G40_ATGAGC_1_trimmed.fq.gz.PPI251.pdf
+    ## -rw-r--r--  1 mbeaumont  staff   393K Mar 30 13:21 mel_R3G40_ATGAGC_1_trimmed.fq.gz.PPI251.raw
+    ## -rw-r--r--  1 mbeaumont  staff   436K Mar 30 13:25 mel_R3G48_ATGAGC_1_trimmed.fq.gz.PPI251
+    ## -rw-r--r--  1 mbeaumont  staff    96K Mar 30 13:26 mel_R3G48_ATGAGC_1_trimmed.fq.gz.PPI251.pdf
+    ## -rw-r--r--  1 mbeaumont  staff   391K Mar 30 13:25 mel_R3G48_ATGAGC_1_trimmed.fq.gz.PPI251.raw
+    ## -rw-r--r--@ 1 mbeaumont  staff   435K Mar 30 13:32 mel_R3G63_TTAGGC_1_trimmed.fq.gz.PPI251
+    ## -rw-r--r--@ 1 mbeaumont  staff   102K Mar 30 13:32 mel_R3G63_TTAGGC_1_trimmed.fq.gz.PPI251.pdf
+    ## -rw-r--r--  1 mbeaumont  staff   394K Mar 30 13:32 mel_R3G63_TTAGGC_1_trimmed.fq.gz.PPI251.raw
+
 From the resulting .fq.gz.PPI251 files, we extracted and assembled the
 P-element copy number values into a single file.
 
@@ -182,6 +439,15 @@ for i in *.PPI251; do echo $i | cut -f1 -d "." | cut -f2 -d "_"  >> mel_pcopies.
 
 done
 ```
+
+``` bash
+cd /Volumes/Data/Projects/DmelR2_P-ele/software/teminer-code-r10/results/mel/deviate/PPI251
+ls -lh *pcopies*
+```
+
+    ## -rw-r--r--@ 1 mbeaumont  staff   330B Mar 30 16:25 mel_pcopies.txt
+    ## -rw-r--r--  1 mbeaumont  staff   336B Mar 31 11:21 mel_pcopies_aligned.tps
+    ## -rw-r--r--@ 1 mbeaumont  staff   336B Mar 30 16:26 mel_pcopies_aligned.txt
 
 # Visualisation
 
@@ -228,6 +494,6 @@ ggplot(d, aes(x = Generation, y = `Copy number`, group= Replicate)) +
   ggtitle("P-element invasions in D.melanogaster")
 ```
 
-![](D.mel_P-element_invasions_DNA_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](D.mel_P-element_invasions_DNA_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 END.
