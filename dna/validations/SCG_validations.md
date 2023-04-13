@@ -1,0 +1,28 @@
+SCG validations
+================
+Matthew Beaumont
+2023-04-13
+
+The three single copy genes (SCGs) used in the copy number estimations
+of the DeviaTE tool needed to be validated. To achieve this, we ran an
+NCBI blast comparison of the three SCG sequences (rhino, ribosomal
+protein L32 and traffic jam) against the Drosophila melanogaster
+reference genome ISO1, achieving the following results.
+
+# SCG rhino
+
+![NCBI BLAST comparison of the rhino gene with the Drosophila
+melanogaster ISO1 reference
+genome](/Volumes/Data/Projects/DmelR2_P-ele/git/Dmel_Pelement_Invasion/dna/validations/SCG_validation_rhi.png)
+
+# SCG ribosomal protein L32
+
+![NCBI BLAST comparison of the rhino gene with the Drosophila
+melanogaster ISO1 reference
+genome](/Volumes/Data/Projects/DmelR2_P-ele/git/Dmel_Pelement_Invasion/dna/validations/SCG_validation_rpl32.png)
+
+# SCG traffic jam
+
+![NCBI BLAST comparison of the rhino gene with the Drosophila
+melanogaster ISO1 reference
+genome](/Volumes/Data/Projects/DmelR2_P-ele/git/Dmel_Pelement_Invasion/dna/validations/SCG_validation_tj.png)
