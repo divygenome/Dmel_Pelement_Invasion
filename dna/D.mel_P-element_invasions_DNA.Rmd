@@ -9,7 +9,6 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
 # Read trimming
 
 All of the following .fq.gz read files were trimmed to the minimum read length of the shortest reads from all files (100) for uniformity.
@@ -40,6 +39,7 @@ The following trimmed .fq.gz files were generated.
 cd /Volumes/Data/Projects/DmelR2_P-ele/fastq/trimmed
 ls -lh
 ```
+
 # TE Mapping
 
 The fast-miner.sh script was altered to accommodate the altered file name for the trimmed read files.
@@ -119,7 +119,7 @@ do
 done 
 ```
 
-This altered fast-miner.sh TEMiner script was then used to generate the following .bam and .rpm files from the trimmed .fq.gz read files. 
+This altered fast-miner.sh TEMiner script was then used to generate the following .bam and .rpm files from the trimmed .fq.gz read files.
 
 ```{bash}
 cd /Volumes/Data/Projects/DmelR2_P-ele/software/teminer-code-r10/results/mel/bam
@@ -197,7 +197,7 @@ cd /Volumes/Data/Projects/DmelR2_P-ele/software/teminer-code-r10/results/mel/dev
 ls -lh *fq.gz.*
 ```
 
-From the resulting .fq.gz.PPI251 files, we extracted and assembled the P-element copy number values into a single file. 
+From the resulting .fq.gz.PPI251 files, we extracted and assembled the P-element copy number values into a single file.
 
 ```{bash, eval=FALSE}
 
@@ -217,7 +217,7 @@ ls -lh *pcopies*
 
 The copy number data was then visualised using ggplot2.
 
-``` {r}
+```{r}
 library (ggplot2)
 theme_set(theme_bw())
 
@@ -235,5 +235,3 @@ ggplot(d, aes(x = Generation, y = `Copy number`, group= Replicate)) +
 ```
 
 END.
-
-
