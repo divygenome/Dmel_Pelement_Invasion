@@ -13,7 +13,7 @@ reference genome ISO1, achieving the following results.
 
 ![NCBI BLAST comparison of the rhino gene with the Drosophila
 melanogaster ISO1 reference
-genome](/Volumes/Data/Projects/DmelR2_P-ele/Dmel_Pele_invasion_R/dna/validations/SCG_validation_rhi.png)
+genome](https://github.com/divygenome/Dmel_Pelement_Invasion/blob/main/dna/validations/SCG_validation_rhi.png?raw=true)
 
 # SCG ribosomal protein L32
 

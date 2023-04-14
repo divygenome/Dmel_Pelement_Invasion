@@ -13,7 +13,7 @@ The three single copy genes (SCGs) used in the copy number estimations of the De
 
 # SCG rhino
 
-![NCBI BLAST comparison of the rhino gene with the Drosophila melanogaster ISO1 reference genome](/Volumes/Data/Projects/DmelR2_P-ele/Dmel_Pele_invasion_R/dna/validations/SCG_validation_rhi.png)
+![NCBI BLAST comparison of the rhino gene with the Drosophila melanogaster ISO1 reference genome](https://github.com/divygenome/Dmel_Pelement_Invasion/blob/main/dna/validations/SCG_validation_rhi.png?raw=true)
 
 # SCG ribosomal protein L32
 
