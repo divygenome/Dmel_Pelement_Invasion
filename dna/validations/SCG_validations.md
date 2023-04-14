@@ -19,10 +19,10 @@ genome](https://github.com/divygenome/Dmel_Pelement_Invasion/blob/main/dna/valid
 
 ![NCBI BLAST comparison of the rhino gene with the Drosophila
 melanogaster ISO1 reference
-genome](/Volumes/Data/Projects/DmelR2_P-ele/Dmel_Pele_invasion_R/dna/validations/SCG_validation_rpl32.png)
+genome](https://github.com/divygenome/Dmel_Pelement_Invasion/blob/main/dna/validations/SCG_validation_rpl32.png?raw=true)
 
 # SCG traffic jam
 
 ![NCBI BLAST comparison of the rhino gene with the Drosophila
 melanogaster ISO1 reference
-genome](/Volumes/Data/Projects/DmelR2_P-ele/Dmel_Pele_invasion_R/dna/validations/SCG_validation_tj.png)
+genome](https://github.com/divygenome/Dmel_Pelement_Invasion/blob/main/dna/validations/SCG_validation_tj.png?raw=true)
