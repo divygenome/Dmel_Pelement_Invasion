@@ -13,16 +13,17 @@ reference genome ISO1, achieving the following results.
 
 ![NCBI BLAST comparison of the rhino gene with the Drosophila
 melanogaster ISO1 reference
-genome](https://github.com/divygenome/Dmel_Pelement_Invasion/blob/main/dna/validations/SCG_validation_rhi.png?raw=true)
+genome](https://github.com/divygenome/Dmel_Pelement_Invasion/blob/main/dna/validations/SCG_validation_rhi.png?raw=true "The BLAST comparison reusults of the top 5 hits of the rhi gene sequence against the ISO1 reference genome, with their E-val listed.")
 
 # SCG ribosomal protein L32
 
-![NCBI BLAST comparison of the rhino gene with the Drosophila
+![NCBI BLAST comparison of the rpl32 gene with the Drosophila
 melanogaster ISO1 reference
-genome](https://github.com/divygenome/Dmel_Pelement_Invasion/blob/main/dna/validations/SCG_validation_rpl32.png?raw=true)
+genome](https://github.com/divygenome/Dmel_Pelement_Invasion/blob/main/dna/validations/SCG_validation_rpl32.png?raw=true "The BLAST comparison reusults of the top 5 hits of the ribosomal protein L32 gene sequence against the ISO1 reference genome, with their E-val listed.")
 
 # SCG traffic jam
 
-![NCBI BLAST comparison of the rhino gene with the Drosophila
-melanogaster ISO1 reference
-genome](https://github.com/divygenome/Dmel_Pelement_Invasion/blob/main/dna/validations/SCG_validation_tj.png?raw=true)
+![NCBI BLAST comparison of the tj gene with the Drosophila melanogaster
+ISO1 reference
+genome](https://github.com/divygenome/Dmel_Pelement_Invasion/blob/main/dna/validations/SCG_validation_tj.png?raw=true "The BLAST comparison reusults of the top 5 hits of the traffic jam gene sequence against the ISO1 reference genome, with their E-val listed.")
+END.
