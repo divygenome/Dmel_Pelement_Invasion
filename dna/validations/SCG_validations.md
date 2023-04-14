@@ -26,4 +26,5 @@ genome](https://github.com/divygenome/Dmel_Pelement_Invasion/blob/main/dna/valid
 ![NCBI BLAST comparison of the tj gene with the Drosophila melanogaster
 ISO1 reference
 genome](https://github.com/divygenome/Dmel_Pelement_Invasion/blob/main/dna/validations/SCG_validation_tj.png?raw=true "The BLAST comparison reusults of the top 5 hits of the traffic jam gene sequence against the ISO1 reference genome, with their E-val listed.")
+
 END.
