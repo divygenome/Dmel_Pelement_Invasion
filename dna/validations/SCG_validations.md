@@ -13,16 +13,16 @@ reference genome ISO1, achieving the following results.
 
 ![NCBI BLAST comparison of the rhino gene with the Drosophila
 melanogaster ISO1 reference
-genome](/Volumes/Data/Projects/DmelR2_P-ele/git/Dmel_Pelement_Invasion/dna/validations/SCG_validation_rhi.png)
+genome](/Volumes/Data/Projects/DmelR2_P-ele/Dmel_Pele_invasion_R/dna/validations/SCG_validation_rhi.png)
 
 # SCG ribosomal protein L32
 
 ![NCBI BLAST comparison of the rhino gene with the Drosophila
 melanogaster ISO1 reference
-genome](/Volumes/Data/Projects/DmelR2_P-ele/git/Dmel_Pelement_Invasion/dna/validations/SCG_validation_rpl32.png)
+genome](/Volumes/Data/Projects/DmelR2_P-ele/Dmel_Pele_invasion_R/dna/validations/SCG_validation_rpl32.png)
 
 # SCG traffic jam
 
 ![NCBI BLAST comparison of the rhino gene with the Drosophila
 melanogaster ISO1 reference
-genome](/Volumes/Data/Projects/DmelR2_P-ele/git/Dmel_Pelement_Invasion/dna/validations/SCG_validation_tj.png)
+genome](/Volumes/Data/Projects/DmelR2_P-ele/Dmel_Pele_invasion_R/dna/validations/SCG_validation_tj.png)
