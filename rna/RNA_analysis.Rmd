@@ -1,0 +1,19 @@
+---
+title: "RNA analysis"
+author: "Matthew Beaumont"
+date: "`r Sys.Date()`"
+output: github_document
+---
+
+```{bash, eval=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+We obtained the following mRNA reads: 
+
+```{bash}
+
+
+```
+
+We started with the reference D. mel transcriptome and merged it with the list of consensus D. mel TEs.
