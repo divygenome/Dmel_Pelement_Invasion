@@ -1,0 +1,102 @@
+---
+title: "Data overview of Dmel P-element invasion"
+author: "Divya Selvaraju"
+date: "6/7/2023"
+output:
+  rmarkdown::github_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{bash, eval=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+We are counting the number of reads as well as read length using the following commands. The number of reads for each sample should be same in both R1 and R2 of a given paired-end sample. 
+
+## Genomic data overview - Processing
+
+
+```{bash, eval = FALSE}
+
+cd /Volume/Temp/Divya/invasion/fastq/mel/
+
+for i in *_1.fq.gz;do echo $i >> dmel_dna_len_1.txt; zless $i | awk '{if(NR%4==2) print length($1)}' | sort -n | uniq -c >> dmel_dna_len_1.txt; done &
+
+for i in *_2.fq.gz;do echo $i >> dmel_dna_len_2.txt; zless $i | awk '{if(NR%4==2) print length($1)}' | sort -n | uniq -c >> dmel_dna_len_2.txt; done &
+
+less dmel_dna_len_1.txt| xargs -n3 | sed 's/_/ /g' | sed 's/1\.fq\.gz//g' | sed 's/[A-Z][A-Z][A-Z][A-Z][A-Z][A-Z]//g' | sed 's/G/ G/'| sed 's/$/ paired/'|  sed 's/  / /g' | sort -k2 > dmel_dna_rl.txt
+
+```
+
+## Output of overview of the genomic data
+
+```{r}
+dna_data= read.table("dmel_dna_rl.txt",header=TRUE)
+print(dna_data)
+```
+
+## Transcriptomic data overview - Processing
+#
+
+```{bash, eval = FALSE}
+
+cd /Volume/Temp/Divya/invasion/RNA/data/dmel/run1
+
+for i in *_R1.fastq.gz;do echo $i >> dmel_rna_len_run1_1.txt; zless $i | awk '{if(NR%4==2) print length($1)}' | sort -n | uniq -c >> dmel_rna_len_run1_1.txt; done &
+
+for i in *_R2.fastq.gz;do echo $i >> dmel_rna_len_run1_2.txt; zless $i | awk '{if(NR%4==2) print length($1)}' | sort -n | uniq -c >>
+dmel_rna_len_run1_2.txt; done &
+
+dmel_rna_len_run1_1.txt| xargs -n3 | sed 's/_/ /g' | sed 's/R1\.fastq\.gz//g' | sed 's/$/ paired/' | sort -k3 > dmel_rna_run1_rl.txt
+
+cd ../run2
+
+for i in *_R1.fastq.gz;do echo $i >> dmel_rna_len_run2_1.txt; zless $i | awk '{if(NR%4==2) print length($1)}' | sort -n | uniq -c >> dmel_rna_len_run2_1.txt; done &
+
+for i in *_R2.fastq.gz;do echo $i >> dmel_rna_len_run2_2.txt; zless $i | awk '{if(NR%4==2) print length($1)}' | sort -n | uniq -c >> dmel_rna_len_run2_2.txt; done &
+
+less dmel_rna_len_run2_1.txt| xargs -n3 | sed 's/_/ /g' | sed 's/R1\.fastq\.gz//g' |sed 's/$/ paired/'  > dmel_rna_run2_rl.txt
+
+
+```
+
+## Output of overview of transcriptomic data  
+
+``` {r}
+rna_data_run1 = read.table("dmel_rna_run1_rl.txt", header = TRUE)
+print(rna_data_run1)
+
+rna_data_run2 = read.table("dmel_rna_run1_rl.txt", header = TRUE)
+print(rna_data_run2)
+```
+
+## small RNA data overview - Processing
+
+```{bash, eval = FALSE}
+
+cd /Volume/Temp/Divya/invasion/piRNA/data/dmel/batch1
+
+for i in *.fastq.gz;do echo $i >> dmel_smallrna_batch1.txt; zless $i | awk '{if(NR%4==2) print length($1)}' | sort -n | uniq -c >> dmel_smallrna_batch1.txt; done &
+
+less dmel_smallrna_batch1.txt| xargs -n3 | sed 's/_/ /g' | sed 's/\.fastq\.gz//g' |sed 's/$/ ovaries/' > dmel_smallrna_batch1_rl.txt
+
+cd ../batch2
+
+for i in *.fastq.gz;do echo $i >> dmel_smallrna_len_batch2.txt; zless $i | awk '{if(NR%4==2) print length($1)}' | sort -n | uniq -c >> dmel_smallrna_len_batch2.txt; done &
+
+less dmel_smallrna_len_batch2.txt| xargs -n3 | sed 's/_/ /g' | sed 's/\.fastq\.gz//g' |gsed 's/$/ wholebody/' > dmel_smallrna_batch2_rl.txt
+
+cat ../batch1/dmel_smallrna_batch1_rl.txt dmel_smallrna_batch2_rl.txt| sort -k2 > dmel_smallrna_rl.txt
+
+```
+
+## Output of overview of the small RNA data
+
+```{r}
+smallrna_data= read.table("dmel_smallrna_rl.txt",header=TRUE)
+print(smallrna_data)
+```
