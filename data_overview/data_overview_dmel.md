@@ -26,7 +26,7 @@ less dmel_dna_len_1.txt| xargs -n3 | sed 's/_/ /g' | sed 's/1\.fq\.gz//g' | sed 
 ## Output of overview of the genomic data
 
 ``` r
-dna_data= read.table("dmel_dna_rl.txt",header=TRUE)
+dna_data= read.table("dmel_dna_rl.txt", header=TRUE)
 print(dna_data)
 ```
 
@@ -56,8 +56,6 @@ print(dna_data)
 
 ## Transcriptomic data overview - Processing
 
-# 
-
 ``` bash
 cd /Volume/Temp/Divya/invasion/RNA/data/dmel/run1
 
@@ -66,7 +64,7 @@ for i in *_R1.fastq.gz;do echo $i >> dmel_rna_len_run1_1.txt; zless $i | awk '{i
 for i in *_R2.fastq.gz;do echo $i >> dmel_rna_len_run1_2.txt; zless $i | awk '{if(NR%4==2) print length($1)}' | sort -n | uniq -c >>
 dmel_rna_len_run1_2.txt; done &
 
-dmel_rna_len_run1_1.txt| xargs -n3 | sed 's/_/ /g' | sed 's/R1\.fastq\.gz//g' |sed 's/$/ paired/' | sort -k3 > dmel_rna_run1_rl.txt
+dmel_rna_len_run1_1.txt| xargs -n3 | sed 's/_/ /g' | sed 's/R1\.fastq\.gz//g' | sed 's/$/ paired/' | sort -k3 > dmel_rna_run1_rl.txt
 
 cd ../run2
 
@@ -102,26 +100,26 @@ print(rna_data_run1)
     ## 15    dmel      rna        R3         G6 run1   16297920        150   paired
 
 ``` r
-rna_data_run2 = read.table("dmel_rna_run1_rl.txt", header = TRUE)
+rna_data_run2 = read.table("dmel_rna_run2_rl.txt", header = TRUE)
 print(rna_data_run2)
 ```
 
     ##    species material replicate generation  run totalreads readlength readtype
-    ## 1     dmel      rna        R1        G15 run1   17919773        150   paired
-    ## 2     dmel      rna        R1        G21 run1   17415757        150   paired
-    ## 3     dmel      rna        R1        G30 run1   16116118        150   paired
-    ## 4     dmel      rna        R1        G40 run1   17658726        150   paired
-    ## 5     dmel      rna        R1         G6 run1   15182477        150   paired
-    ## 6     dmel      rna        R2        G15 run1   18195062        150   paired
-    ## 7     dmel      rna        R2        G21 run1   15773656        150   paired
-    ## 8     dmel      rna        R2        G30 run1   15749983        150   paired
-    ## 9     dmel      rna        R2        G40 run1   18425395        150   paired
-    ## 10    dmel      rna        R2         G6 run1   16052901        150   paired
-    ## 11    dmel      rna        R3        G15 run1   16040102        150   paired
-    ## 12    dmel      rna        R3        G21 run1   17560544        150   paired
-    ## 13    dmel      rna        R3        G30 run1   18488825        150   paired
-    ## 14    dmel      rna        R3        G40 run1   18837267        150   paired
-    ## 15    dmel      rna        R3         G6 run1   16297920        150   paired
+    ## 1     dmel      rna        R1        G15 run2   33143167        150   paired
+    ## 2     dmel      rna        R1        G21 run2   33305787        150   paired
+    ## 3     dmel      rna        R1        G30 run2   29725518        150   paired
+    ## 4     dmel      rna        R1        G40 run2   33436066        150   paired
+    ## 5     dmel      rna        R1         G6 run2   28060692        150   paired
+    ## 6     dmel      rna        R2        G15 run2   34193914        150   paired
+    ## 7     dmel      rna        R2        G21 run2   29649755        150   paired
+    ## 8     dmel      rna        R2        G30 run2   29326595        150   paired
+    ## 9     dmel      rna        R2        G40 run2   34663797        150   paired
+    ## 10    dmel      rna        R2         G6 run2   30028561        150   paired
+    ## 11    dmel      rna        R3        G15 run2   30301876        150   paired
+    ## 12    dmel      rna        R3        G21 run2   32840369        150   paired
+    ## 13    dmel      rna        R3        G30 run2   35540716        150   paired
+    ## 14    dmel      rna        R3        G40 run2   35598194        150   paired
+    ## 15    dmel      rna        R3         G6 run2   30765749        150   paired
 
 ## small RNA data overview - Processing
 

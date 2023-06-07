@@ -35,12 +35,11 @@ less dmel_dna_len_1.txt| xargs -n3 | sed 's/_/ /g' | sed 's/1\.fq\.gz//g' | sed 
 ## Output of overview of the genomic data
 
 ```{r}
-dna_data= read.table("dmel_dna_rl.txt",header=TRUE)
+dna_data= read.table("dmel_dna_rl.txt", header=TRUE)
 print(dna_data)
 ```
 
 ## Transcriptomic data overview - Processing
-#
 
 ```{bash, eval = FALSE}
 
@@ -70,7 +69,7 @@ less dmel_rna_len_run2_1.txt| xargs -n3 | sed 's/_/ /g' | sed 's/R1\.fastq\.gz//
 rna_data_run1 = read.table("dmel_rna_run1_rl.txt", header = TRUE)
 print(rna_data_run1)
 
-rna_data_run2 = read.table("dmel_rna_run1_rl.txt", header = TRUE)
+rna_data_run2 = read.table("dmel_rna_run2_rl.txt", header = TRUE)
 print(rna_data_run2)
 ```
 
