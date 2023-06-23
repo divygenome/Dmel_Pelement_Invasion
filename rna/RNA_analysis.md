@@ -1,7 +1,7 @@
 RNA analysis
 ================
 Matthew Beaumont
-2023-06-21
+2023-06-23
 
 ``` bash
 knitr::opts_chunk$set(echo = TRUE)
@@ -332,8 +332,8 @@ transcript_to_gene <- c(
   "PPI251" = "P-element",
   "FBtr0083183_mRNA" = "spn-E",
   "FBtr0088034_mRNA" = "cuff",
-  "FBtr0086904_mRNA" = "Dcr-2",
-  "FBtr0087984_mRNA" = "Hen1",
+  "FBtr0086904_mRNA" = "dcr-2",
+  "FBtr0087984_mRNA" = "hen1",
   "FBtr0087189_mRNA" = "krimp",
   "FBtr0080497_mRNA" = "loqs",
   "FBtr0079489_mRNA" = "r2d2",
@@ -369,7 +369,7 @@ get_max_value <- function(gene) {
   max_values$Coverage[max_values$Gene == gene]
 }
 
-ggplot(data, aes(x = Position, y = Coverage, color = Type)) +
+cov_plot <- ggplot(data, aes(x = Position, y = Coverage, color = Type)) +
   geom_line() +
   facet_wrap(~ Gene, ncol = 7, scales = "free") +
   labs(x = "Position", y = "Coverage", color = "Type") +
@@ -377,12 +377,8 @@ ggplot(data, aes(x = Position, y = Coverage, color = Type)) +
   scale_y_continuous(expand = c(0, 0), limits = c(-max(data$Coverage), max(data$Coverage))) +
   guides(color = guide_legend(title = "Type")) +
   theme(legend.position = "bottom")
-```
 
-![](RNA_analysis_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
-
-``` r
-ggsave("figs/mRNA_sense_antisense.png", width = 18, height = 10, bg = "white", dpi = 300)
+ggsave("figs/mRNA_sense_antisense.png", cov_plot, width = 18, height = 10, bg = "white", dpi = 300)
 
 knitr::include_graphics("figs/mRNA_sense_antisense.png")
 ```
@@ -451,47 +447,50 @@ mapped_reads_plot <- ggplot(overview, aes(x = Generation)) +
   facet_wrap(. ~ Replicate, ncol = 1) +
   labs(x = "Generation", y = "Read counts") +
   ggtitle("Mapped reads & mapped reads w/ min mq") +
-  scale_fill_manual(values = c("Mapped reads" = "steelblue", "Mapped reads w/ min mq" = "darkorange"),
+  scale_fill_manual(values = c("Mapped reads" = "darkseagreen3", "Mapped reads w/ min mq" = "khaki3"),
                     name = NULL,
                     breaks = c("Mapped reads", "Mapped reads w/ min mq"),
                     labels = c("Mapped reads", "Mapped reads w/ min mq"),
                     guide = guide_legend(reverse = TRUE)) +
-  theme_bw() +
-  scale_y_continuous(labels = label_number(scale = 1e-6, suffix = "M"))
+                    theme_bw() +
+                    theme(legend.position = "bottom") +
+                    scale_y_continuous(labels = label_number(scale = 1e-6, suffix = "M"))
 
 sense_antisense_gene_plot <- ggplot(overview, aes(x = Generation, y = SenseGene, fill = "Sense")) +
   geom_bar(stat = "identity") +
   geom_bar(aes(y = AntisenseGene, fill = "Antisense"), stat = "identity") +
   facet_wrap(. ~ Replicate, ncol = 1) +
-  labs(x = "Generation", y = "Read counts") +
+  labs(x = "Generation", y = NULL) +
   ggtitle("Sense/antisense gene read counts") +
-  scale_fill_manual(values = c("Sense" = "steelblue", "Antisense" = "darkorange"),
+  scale_fill_manual(values = c("Sense" = "lightblue", "Antisense" = "darksalmon"),
                     name = NULL,
                     breaks = c("Sense", "Antisense"),
                     labels = c("Sense", "Antisense"),
                     guide = guide_legend(reverse = TRUE)) +
-  theme_bw() +
-  scale_y_continuous(labels = label_number(scale = 1e-6, suffix = "M"))
+                    theme_bw() +
+                    theme(legend.position = "bottom") +
+                    scale_y_continuous(labels = label_number(scale = 1e-6, suffix = "M"))
 
 sense_antisense_pelement_plot <- ggplot(overview, aes(x = Generation, y = SensePelement, fill = "Sense")) +
   geom_bar(stat = "identity") +
   geom_bar(aes(y = AntisensePelement, fill = "Antisense"), stat = "identity") +
   facet_wrap(. ~ Replicate, ncol = 1) +
-  labs(x = "Generation", y = "Read counts") +
+  labs(x = "Generation", y = NULL) +
   ggtitle("Sense/antisense P-element read counts") +
-  scale_fill_manual(values = c("Sense" = "steelblue", "Antisense" = "darkorange"),
+  scale_fill_manual(values = c("Sense" = "lightblue", "Antisense" = "darksalmon"),
                     name = NULL,
                     breaks = c("Sense", "Antisense"),
                     labels = c("Sense", "Antisense"),
                     guide = guide_legend(reverse = TRUE)) +
-  theme_bw() +
-  scale_y_continuous(labels = label_number(scale = 1e-3, suffix = "k"))
+                    theme_bw() +
+                    theme(legend.position = "bottom") +
+                    scale_y_continuous(labels = label_number(scale = 1e-3, suffix = "k"))
 
-combined_plot <- cowplot::plot_grid(mapped_reads_plot, sense_antisense_gene_plot, sense_antisense_pelement_plot, ncol = 1)
+combined_plot <- cowplot::plot_grid(mapped_reads_plot, sense_antisense_gene_plot, sense_antisense_pelement_plot, ncol = 3)
 
-ggsave("figs/mRNA_overview.png", combined_plot, width = 6, height = 12, dpi = 300)
+ggsave("figs/mRNA_sum_stats.png", combined_plot, width = 20, height = 10, dpi = 600)
 
-knitr::include_graphics("figs/mRNA_overview.png")
+knitr::include_graphics("figs/mRNA_sum_stats.png")
 ```
 
 ``` r
@@ -516,15 +515,18 @@ for(i in 1:length(genes))
   
   s<-subset(a,strand=="se")
   as<-subset(a,strand=="ase")
+}
   
-  
-  plot <- ggplot() +
+mRNA_plot <- ggplot() +
     geom_polygon(data=s,mapping=aes(x=pos, y=cov), fill='grey', color='grey') +
     geom_polygon(data=as, aes(x=pos, y=-cov), fill='lightgrey', color='lightgrey')+
-    facet_grid(time~rep)
-  
-plot
-}
+    facet_grid(time~rep)+
+    ylab("coverage")+
+    xlab("position")
+
+ggsave("figs/mRNA_overview.png", mRNA_plot, width = 12, height = 6, dpi = 600)
+
+knitr::include_graphics("figs/mRNA_overview.png")
 ```
 
 # Lok - Wilcoxon Test
@@ -551,7 +553,7 @@ lok<-read.table("/Volumes/Data/Projects/dmelR2_p-ele/rna/run2/splicing-expressio
 
 names(lok)<-c("rep","time","tissue","strand","gene","pos","cov")
 a<-subset(lok,gene=="FBtr0081328_mRNA" & strand=="se")
-mc<-a %>% group_by(rep,time) %>% summarize(mcov=mean(cov))
+mc<-a %>% group_by(rep,time) %>% summarise(mcov=mean(cov))
 ```
 
     ## `summarise()` has grouped output by 'rep'. You can override using the `.groups`
@@ -644,6 +646,9 @@ samtools view $if/gt_R3G40.sort.bam | python $pyscript --sam - --sample-id R3-G4
 # cat *.txt| perl -pe 's/-/\t/'|perl -pe 's/-/\t/' > spli.forr
 ```
 
+And then we visualised both the P-element expression and the splicing of
+its’ three introns together in ggplot2.
+
 ``` r
 library(ggplot2)
 theme_set(theme_bw())
@@ -673,37 +678,26 @@ aspli$start<-aspli$start-1 # position inaccuracy, graph is more appealing
 aspli$keystart<-paste0(aspli$rep,"_",aspli$time,"_",aspli$start,"_",aspli$strand)
 aspli$keyend<-paste0(aspli$rep,"_",aspli$time,"_",aspli$end,"_",aspli$strand)
 
-
 aspli<-merge(x=aspli,y=a[,c("key","cov")],by.x="keystart",by.y="key")
 aspli<-merge(x=aspli,y=a[,c("key","cov")],by.x="keyend",by.y="key")
 aspli$size<-log(aspli$freq+1)
 
-
 a_s<-subset(aspli,strand=="se")
 a_as<-subset(aspli,strand=="ase")
-  
-  
-plot <- ggplot() +
+
+expr_spli_plot <- ggplot() +
     geom_polygon(data=s,mapping=aes(x=pos, y=cov), fill='grey', color='grey') +
     geom_polygon(data=as, aes(x=pos, y=-cov), fill='lightgrey', color='lightgrey')+
     geom_curve(data=a_s, mapping=aes(x=start, y=cov.x, xend=end, yend=cov.y,linewidth=size), curvature=-0.2, ncp=10, show.legend=FALSE)+
     geom_curve(data=a_as, mapping=aes(x=start, y=-cov.x, xend=end, yend=-cov.y,linewidth=size), curvature=0.2, ncp=10, show.legend=FALSE)+
-    facet_grid(time~rep)+scale_size(range=c(0.2,2))+xlab("Position")+ylab("Expression level [rpm]")
+    facet_grid(time~rep)+scale_size(range=c(0.2,2))+xlab("position")+ylab("expression level [rpm]")
 
+ggsave("figs/expr_spli.png", expr_spli_plot, width = 14, height = 14)
 
-plot(plot)
+knitr::include_graphics("figs/expr_spli.png")
 ```
 
-![](RNA_analysis_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
-
-``` r
-outfile<-"/Volumes/Data/Projects/dmelR2_p-ele/rna/run2/splicing-expression/PPI251_wf.png"
-ggsave(filename = outfile, plot = plot, width = 14, height = 14)
-
-knitr::include_graphics("/Volumes/Data/Projects/dmelR2_p-ele/rna/run2/splicing-expression/PPI251_wf.png")
-```
-
-<img src="../../rna/run2/splicing-expression/PPI251_wf.png" width="4200" />
+<img src="figs/expr_spli.png" width="4200" />
 
 # P-element expression
 
@@ -764,21 +758,15 @@ resolution <- 600
 s<-ggplot()+geom_line(data=t,aes(x=generation,y=sense,color=replicate),linewidth=1)+
   geom_point(data=t,aes(x=generation,y=sense,color=replicate))+
   theme(strip.text=element_blank(),legend.position=c(0.1,0.9))+
-  ylab("Expression [rpkm]")+scale_colour_manual(values=tresrep)+xlim(0,48) +
-  xlab("Generation")
+  ylab("expression [rpkm]")+scale_colour_manual(values=tresrep)+xlim(0,48) +
+  xlab("generation")
 
-plot(s)
-```
-
-![](RNA_analysis_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
-
-``` r
-ggsave("figs/P-ele_expression.png", plot = s, width = 10, height = 6, dpi = 600)
+ggsave("figs/P-ele_expression.png", plot = s, width = 8, height = 5, dpi = 600)
 
 knitr::include_graphics("figs/P-ele_expression.png")
 ```
 
-<img src="figs/P-ele_expression.png" width="6000" />
+<img src="figs/P-ele_expression.png" width="4800" />
 
 ## IVS3
 
@@ -815,15 +803,9 @@ t<-rbind(t,missingvalues)
 s<-ggplot()+geom_line(data=t,aes(x=generation,y=freq,color=rep),linewidth=1)+
   geom_point(data=t,aes(x=generation,y=freq,color=rep))+
   theme(strip.text=element_blank(),legend.position=c(0.1,0.9))+
-  ylab("Splicing level IVS3 [srpm]")+scale_colour_manual(values=colrep1)+xlim(0,48) +
-  xlab("Generation")
+  ylab("splicing level IVS3 [srpm]")+scale_colour_manual(values=colrep1)+xlim(0,48) +
+  xlab("generation")
 
-plot(s)
-```
-
-![](RNA_analysis_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
-
-``` r
 ggsave("figs/IVS3.png", plot = s, width = 10, height = 6, dpi = 600)
 
 knitr::include_graphics("figs/IVS3.png")
@@ -863,18 +845,13 @@ missingvalues=data.frame(rep=c("R1","R2","R3"),generation=c(0,0,0),tissue=rep("w
 
 t<-rbind(t,missingvalues)
 
-s<-ggplot()+geom_line(data=t,aes(x=generation,y=freq,color=rep),linewidth=1)+
-  geom_point(data=t,aes(x=generation,y=freq,color=rep))+
-  theme(strip.text=element_blank(),legend.position=c(0.1,0.9))+
-  ylab("Splicing level IVS2 [rpm]")+scale_colour_manual(values=colrep2)+xlim(0,48) +
-  xlab("Generation")
+s<-ggplot()+geom_line(data=t,aes(x=generation,y=freq,color=rep),linewidth=1) +
+  geom_point(data=t,aes(x=generation,y=freq,color=rep)) +
+  theme(strip.text=element_blank(),legend.position=c(0.1,0.9)) +
+  ylab("splicing level IVS2 [rpm]") +
+  scale_colour_manual(values=colrep2)+xlim(0,48) +
+  xlab("generation")
 
-plot(s)
-```
-
-![](RNA_analysis_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
-
-``` r
 ggsave("figs/IVS2.png", plot = s, width = 10, height = 6, dpi = 600)
 
 knitr::include_graphics("figs/IVS2.png")
@@ -920,12 +897,6 @@ s<-ggplot()+geom_line(data=t,aes(x=generation,y=freq,color=rep),linewidth=1,lty=
   ylab("Splicing level IVS1 [rpm]")+scale_colour_manual(values=colrep3)+xlim(0,48) +
   xlab("Generation")
 
-plot(s)
-```
-
-![](RNA_analysis_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
-
-``` r
 ggsave("figs/IVS1.png", plot = s, width = 10, height = 6, dpi = 600)
 
 knitr::include_graphics("figs/IVS1.png")
@@ -1029,7 +1000,7 @@ dflm3<-data.frame(gene=rownames(lm3$table),logfc=lm3$table$logFC, pval=lm3$table
 lmvs2<-edgemeext(eg30R1,eg40R1,eg30R2,eg40R2,eg30R3,eg40R3)
 dflmvs2<-data.frame(gene=rownames(lmvs2$table),logfc=lmvs2$table$logFC, pval=lmvs2$table$PValue,fdr=p.adjust(as.numeric(lmvs2$table$PValue),method="BH"))
 
-#### Coloring FDR 
+#### Colouring FDR 
 fdr<-0.01
 fdr2<-0.001
 
