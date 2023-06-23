@@ -13,10 +13,10 @@ We obtained the following mRNA reads:
 
 ```{bash}
 cd /Volumes/Data/Projects/dmelR2_p-ele/rna/run1/raw
-ls -lh *.fastq.gz
+ls *.fastq.gz
 
 cd /Volumes/Data/Projects/dmelR2_p-ele/rna/run2/raw
-ls -lh *.fastq.gz
+ls *.fastq.gz
 
 ```
 We then ran fastQC on all files to assess their quality.
@@ -29,10 +29,10 @@ fastqc --outdir /Volumes/Data/Projects/dmelR2_p-ele/rna/raw/run2/fastQC /Volumes
 
 ``` {bash}
 cd /Volumes/Data/Projects/dmelR2_p-ele/rna/run1/fastQC/
-ls -lh
+ls
 
 cd /Volumes/Data/Projects/dmelR2_p-ele/rna/run2/fastQC/
-ls -lh 
+ls
 
 ```
 
@@ -58,7 +58,7 @@ We then merged it with the list of consensus D. mel TEs and indexed it.
 
 ``` {bash}
 cd /Volumes/Data/Tools/RefGenomes/dmel/rna/dmel_TEs
-ls -lh
+ls
 
 ```
 
@@ -146,6 +146,11 @@ gsnap -D "$refdir" -d "$refname" -t 12 -N 1 --format=sam --gunzip "$input_dir/dm
 
 Which provides the following sorted BAM files.
 
+``` {bash eval=FALSE}
+cd /Volumes/Data/Projects/dmelR2_p-ele/rna/run2/map-GMAP/output
+ls
+
+```
 
 # Coverage 
 
@@ -401,7 +406,7 @@ ggsave("figs/mRNA_overview.png", mRNA_plot, width = 12, height = 6, dpi = 600)
 knitr::include_graphics("figs/mRNA_overview.png")
 
 ```
-# Lok - Wilcoxon Test
+## Lok - Wilcoxon Test
 
 ```{R}
 library(ggplot2)
