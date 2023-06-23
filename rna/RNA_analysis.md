@@ -11,72 +11,72 @@ We obtained the following mRNA reads:
 
 ``` bash
 cd /Volumes/Data/Projects/dmelR2_p-ele/rna/run1/raw
-ls -lh *.fastq.gz
+ls *.fastq.gz
 
 cd /Volumes/Data/Projects/dmelR2_p-ele/rna/run2/raw
-ls -lh *.fastq.gz
+ls *.fastq.gz
 ```
 
-    ## -rw-r--r--  1 mbeaumont  staff   1.1G May 25 15:21 dmel_rna_R1_G15_run1_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.2G May 25 15:22 dmel_rna_R1_G15_run1_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.1G May 25 15:22 dmel_rna_R1_G21_run1_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.1G May 25 15:22 dmel_rna_R1_G21_run1_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.0G May 25 15:23 dmel_rna_R1_G30_run1_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.1G May 25 15:23 dmel_rna_R1_G30_run1_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.1G May 25 15:23 dmel_rna_R1_G40_run1_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.2G May 25 15:23 dmel_rna_R1_G40_run1_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   957M May 25 15:24 dmel_rna_R1_G6_run1_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.0G May 25 15:24 dmel_rna_R1_G6_run1_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.1G May 25 15:24 dmel_rna_R2_G15_run1_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.2G May 25 15:24 dmel_rna_R2_G15_run1_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   985M May 25 15:25 dmel_rna_R2_G21_run1_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.0G May 25 15:25 dmel_rna_R2_G21_run1_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   987M May 25 15:25 dmel_rna_R2_G30_run1_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.0G May 25 15:25 dmel_rna_R2_G30_run1_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.1G May 25 15:26 dmel_rna_R2_G40_run1_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.2G May 25 15:26 dmel_rna_R2_G40_run1_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.0G May 25 15:26 dmel_rna_R2_G6_run1_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.0G May 25 15:27 dmel_rna_R2_G6_run1_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.0G May 25 15:27 dmel_rna_R3_G15_run1_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.0G May 25 15:27 dmel_rna_R3_G15_run1_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.1G May 25 15:27 dmel_rna_R3_G21_run1_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.1G May 25 15:28 dmel_rna_R3_G21_run1_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.1G May 25 15:28 dmel_rna_R3_G30_run1_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.2G May 25 15:28 dmel_rna_R3_G30_run1_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.1G May 25 15:29 dmel_rna_R3_G40_run1_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.2G May 25 15:29 dmel_rna_R3_G40_run1_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.0G May 25 15:29 dmel_rna_R3_G6_run1_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.1G May 25 15:30 dmel_rna_R3_G6_run1_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.1G May 25 15:31 dmel_rna_R1_G15_run2_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.2G May 25 15:32 dmel_rna_R1_G15_run2_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.1G May 25 15:32 dmel_rna_R1_G21_run2_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.2G May 25 15:33 dmel_rna_R1_G21_run2_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.8G May 25 15:33 dmel_rna_R1_G30_run2_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.0G May 25 15:34 dmel_rna_R1_G30_run2_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.1G May 25 15:34 dmel_rna_R1_G40_run2_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.2G May 25 15:35 dmel_rna_R1_G40_run2_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.8G May 25 15:35 dmel_rna_R1_G6_run2_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.9G May 25 15:36 dmel_rna_R1_G6_run2_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.2G May 25 15:36 dmel_rna_R2_G15_run2_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.3G May 25 15:37 dmel_rna_R2_G15_run2_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.9G May 25 15:38 dmel_rna_R2_G21_run2_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.0G May 25 15:38 dmel_rna_R2_G21_run2_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.8G May 25 15:38 dmel_rna_R2_G30_run2_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.9G May 25 15:39 dmel_rna_R2_G30_run2_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.2G May 25 15:39 dmel_rna_R2_G40_run2_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.3G May 25 15:40 dmel_rna_R2_G40_run2_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.9G May 25 15:40 dmel_rna_R2_G6_run2_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.0G May 25 15:41 dmel_rna_R2_G6_run2_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.9G May 25 15:41 dmel_rna_R3_G15_run2_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.0G May 25 15:42 dmel_rna_R3_G15_run2_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.0G May 25 15:42 dmel_rna_R3_G21_run2_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.2G May 25 15:43 dmel_rna_R3_G21_run2_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.2G May 25 15:43 dmel_rna_R3_G30_run2_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.4G May 25 15:44 dmel_rna_R3_G30_run2_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.2G May 25 15:45 dmel_rna_R3_G40_run2_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.4G May 25 15:45 dmel_rna_R3_G40_run2_R2.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.9G May 25 15:46 dmel_rna_R3_G6_run2_R1.fastq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.0G May 25 15:46 dmel_rna_R3_G6_run2_R2.fastq.gz
+    ## dmel_rna_R1_G15_run1_R1.fastq.gz
+    ## dmel_rna_R1_G15_run1_R2.fastq.gz
+    ## dmel_rna_R1_G21_run1_R1.fastq.gz
+    ## dmel_rna_R1_G21_run1_R2.fastq.gz
+    ## dmel_rna_R1_G30_run1_R1.fastq.gz
+    ## dmel_rna_R1_G30_run1_R2.fastq.gz
+    ## dmel_rna_R1_G40_run1_R1.fastq.gz
+    ## dmel_rna_R1_G40_run1_R2.fastq.gz
+    ## dmel_rna_R1_G6_run1_R1.fastq.gz
+    ## dmel_rna_R1_G6_run1_R2.fastq.gz
+    ## dmel_rna_R2_G15_run1_R1.fastq.gz
+    ## dmel_rna_R2_G15_run1_R2.fastq.gz
+    ## dmel_rna_R2_G21_run1_R1.fastq.gz
+    ## dmel_rna_R2_G21_run1_R2.fastq.gz
+    ## dmel_rna_R2_G30_run1_R1.fastq.gz
+    ## dmel_rna_R2_G30_run1_R2.fastq.gz
+    ## dmel_rna_R2_G40_run1_R1.fastq.gz
+    ## dmel_rna_R2_G40_run1_R2.fastq.gz
+    ## dmel_rna_R2_G6_run1_R1.fastq.gz
+    ## dmel_rna_R2_G6_run1_R2.fastq.gz
+    ## dmel_rna_R3_G15_run1_R1.fastq.gz
+    ## dmel_rna_R3_G15_run1_R2.fastq.gz
+    ## dmel_rna_R3_G21_run1_R1.fastq.gz
+    ## dmel_rna_R3_G21_run1_R2.fastq.gz
+    ## dmel_rna_R3_G30_run1_R1.fastq.gz
+    ## dmel_rna_R3_G30_run1_R2.fastq.gz
+    ## dmel_rna_R3_G40_run1_R1.fastq.gz
+    ## dmel_rna_R3_G40_run1_R2.fastq.gz
+    ## dmel_rna_R3_G6_run1_R1.fastq.gz
+    ## dmel_rna_R3_G6_run1_R2.fastq.gz
+    ## dmel_rna_R1_G15_run2_R1.fastq.gz
+    ## dmel_rna_R1_G15_run2_R2.fastq.gz
+    ## dmel_rna_R1_G21_run2_R1.fastq.gz
+    ## dmel_rna_R1_G21_run2_R2.fastq.gz
+    ## dmel_rna_R1_G30_run2_R1.fastq.gz
+    ## dmel_rna_R1_G30_run2_R2.fastq.gz
+    ## dmel_rna_R1_G40_run2_R1.fastq.gz
+    ## dmel_rna_R1_G40_run2_R2.fastq.gz
+    ## dmel_rna_R1_G6_run2_R1.fastq.gz
+    ## dmel_rna_R1_G6_run2_R2.fastq.gz
+    ## dmel_rna_R2_G15_run2_R1.fastq.gz
+    ## dmel_rna_R2_G15_run2_R2.fastq.gz
+    ## dmel_rna_R2_G21_run2_R1.fastq.gz
+    ## dmel_rna_R2_G21_run2_R2.fastq.gz
+    ## dmel_rna_R2_G30_run2_R1.fastq.gz
+    ## dmel_rna_R2_G30_run2_R2.fastq.gz
+    ## dmel_rna_R2_G40_run2_R1.fastq.gz
+    ## dmel_rna_R2_G40_run2_R2.fastq.gz
+    ## dmel_rna_R2_G6_run2_R1.fastq.gz
+    ## dmel_rna_R2_G6_run2_R2.fastq.gz
+    ## dmel_rna_R3_G15_run2_R1.fastq.gz
+    ## dmel_rna_R3_G15_run2_R2.fastq.gz
+    ## dmel_rna_R3_G21_run2_R1.fastq.gz
+    ## dmel_rna_R3_G21_run2_R2.fastq.gz
+    ## dmel_rna_R3_G30_run2_R1.fastq.gz
+    ## dmel_rna_R3_G30_run2_R2.fastq.gz
+    ## dmel_rna_R3_G40_run2_R1.fastq.gz
+    ## dmel_rna_R3_G40_run2_R2.fastq.gz
+    ## dmel_rna_R3_G6_run2_R1.fastq.gz
+    ## dmel_rna_R3_G6_run2_R2.fastq.gz
 
 We then ran fastQC on all files to assess their quality.
 
@@ -87,76 +87,74 @@ fastqc --outdir /Volumes/Data/Projects/dmelR2_p-ele/rna/raw/run2/fastQC /Volumes
 
 ``` bash
 cd /Volumes/Data/Projects/dmelR2_p-ele/rna/run1/fastQC/
-ls -lh
+ls
 
 cd /Volumes/Data/Projects/dmelR2_p-ele/rna/run2/fastQC/
-ls -lh 
+ls
 ```
 
-    ## total 80048
-    ## -rw-r--r--  1 mbeaumont  staff   708K May 31 13:10 dmel_rna_R1_G15_run1_R1_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   624K May 31 13:10 dmel_rna_R1_G15_run1_R1_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   701K May 31 13:12 dmel_rna_R1_G15_run1_R2_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   616K May 31 13:12 dmel_rna_R1_G15_run1_R2_fastqc.zip
-    ## -rw-r--r--@ 1 mbeaumont  staff   710K May 31 13:15 dmel_rna_R1_G21_run1_R1_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   623K May 31 13:15 dmel_rna_R1_G21_run1_R1_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   706K May 31 13:17 dmel_rna_R1_G21_run1_R2_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   619K May 31 13:17 dmel_rna_R1_G21_run1_R2_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   705K May 31 13:20 dmel_rna_R1_G30_run1_R1_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   616K May 31 13:20 dmel_rna_R1_G30_run1_R1_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   706K May 31 13:22 dmel_rna_R1_G30_run1_R2_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   622K May 31 13:22 dmel_rna_R1_G30_run1_R2_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   706K May 31 13:24 dmel_rna_R1_G40_run1_R1_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   619K May 31 13:24 dmel_rna_R1_G40_run1_R1_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   702K May 31 13:27 dmel_rna_R1_G40_run1_R2_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   620K May 31 13:27 dmel_rna_R1_G40_run1_R2_fastqc.zip
-    ## -rw-r--r--@ 1 mbeaumont  staff   705K May 31 13:29 dmel_rna_R1_G6_run1_R1_fastqc.html
-    ## -rw-r--r--@ 1 mbeaumont  staff   618K May 31 13:29 dmel_rna_R1_G6_run1_R1_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   704K May 31 13:31 dmel_rna_R1_G6_run1_R2_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   617K May 31 13:31 dmel_rna_R1_G6_run1_R2_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   710K May 31 13:34 dmel_rna_R2_G15_run1_R1_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   623K May 31 13:34 dmel_rna_R2_G15_run1_R1_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   706K May 31 13:36 dmel_rna_R2_G15_run1_R2_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   620K May 31 13:36 dmel_rna_R2_G15_run1_R2_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   707K May 31 13:39 dmel_rna_R2_G21_run1_R1_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   617K May 31 13:39 dmel_rna_R2_G21_run1_R1_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   701K May 31 13:41 dmel_rna_R2_G21_run1_R2_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   614K May 31 13:41 dmel_rna_R2_G21_run1_R2_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   707K May 31 13:43 dmel_rna_R2_G30_run1_R1_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   619K May 31 13:43 dmel_rna_R2_G30_run1_R1_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   703K May 31 13:45 dmel_rna_R2_G30_run1_R2_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   616K May 31 13:45 dmel_rna_R2_G30_run1_R2_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   710K May 31 13:48 dmel_rna_R2_G40_run1_R1_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   623K May 31 13:48 dmel_rna_R2_G40_run1_R1_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   704K May 31 13:51 dmel_rna_R2_G40_run1_R2_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   621K May 31 13:51 dmel_rna_R2_G40_run1_R2_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   706K May 31 13:53 dmel_rna_R2_G6_run1_R1_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   618K May 31 13:53 dmel_rna_R2_G6_run1_R1_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   703K May 31 13:55 dmel_rna_R2_G6_run1_R2_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   615K May 31 13:55 dmel_rna_R2_G6_run1_R2_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   707K May 31 13:58 dmel_rna_R3_G15_run1_R1_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   621K May 31 13:58 dmel_rna_R3_G15_run1_R1_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   703K May 31 14:00 dmel_rna_R3_G15_run1_R2_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   617K May 31 14:00 dmel_rna_R3_G15_run1_R2_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   713K May 31 14:02 dmel_rna_R3_G21_run1_R1_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   624K May 31 14:02 dmel_rna_R3_G21_run1_R1_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   705K May 31 14:05 dmel_rna_R3_G21_run1_R2_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   621K May 31 14:05 dmel_rna_R3_G21_run1_R2_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   707K May 31 14:08 dmel_rna_R3_G30_run1_R1_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   623K May 31 14:08 dmel_rna_R3_G30_run1_R1_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   705K May 31 14:10 dmel_rna_R3_G30_run1_R2_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   620K May 31 14:10 dmel_rna_R3_G30_run1_R2_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   712K May 31 14:13 dmel_rna_R3_G40_run1_R1_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   629K May 31 14:13 dmel_rna_R3_G40_run1_R1_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   706K May 31 14:15 dmel_rna_R3_G40_run1_R2_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   625K May 31 14:15 dmel_rna_R3_G40_run1_R2_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   708K May 31 14:17 dmel_rna_R3_G6_run1_R1_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   618K May 31 14:17 dmel_rna_R3_G6_run1_R1_fastqc.zip
-    ## -rw-r--r--  1 mbeaumont  staff   702K May 31 14:20 dmel_rna_R3_G6_run1_R2_fastqc.html
-    ## -rw-r--r--  1 mbeaumont  staff   618K May 31 14:20 dmel_rna_R3_G6_run1_R2_fastqc.zip
-    ## total 0
-    ## drwxr-xr-x  62 mbeaumont  staff   2.1K Jun  1 18:23 raw
-    ## drwxr-xr-x  62 mbeaumont  staff   2.1K Jun  1 19:58 trimmed
+    ## dmel_rna_R1_G15_run1_R1_fastqc.html
+    ## dmel_rna_R1_G15_run1_R1_fastqc.zip
+    ## dmel_rna_R1_G15_run1_R2_fastqc.html
+    ## dmel_rna_R1_G15_run1_R2_fastqc.zip
+    ## dmel_rna_R1_G21_run1_R1_fastqc.html
+    ## dmel_rna_R1_G21_run1_R1_fastqc.zip
+    ## dmel_rna_R1_G21_run1_R2_fastqc.html
+    ## dmel_rna_R1_G21_run1_R2_fastqc.zip
+    ## dmel_rna_R1_G30_run1_R1_fastqc.html
+    ## dmel_rna_R1_G30_run1_R1_fastqc.zip
+    ## dmel_rna_R1_G30_run1_R2_fastqc.html
+    ## dmel_rna_R1_G30_run1_R2_fastqc.zip
+    ## dmel_rna_R1_G40_run1_R1_fastqc.html
+    ## dmel_rna_R1_G40_run1_R1_fastqc.zip
+    ## dmel_rna_R1_G40_run1_R2_fastqc.html
+    ## dmel_rna_R1_G40_run1_R2_fastqc.zip
+    ## dmel_rna_R1_G6_run1_R1_fastqc.html
+    ## dmel_rna_R1_G6_run1_R1_fastqc.zip
+    ## dmel_rna_R1_G6_run1_R2_fastqc.html
+    ## dmel_rna_R1_G6_run1_R2_fastqc.zip
+    ## dmel_rna_R2_G15_run1_R1_fastqc.html
+    ## dmel_rna_R2_G15_run1_R1_fastqc.zip
+    ## dmel_rna_R2_G15_run1_R2_fastqc.html
+    ## dmel_rna_R2_G15_run1_R2_fastqc.zip
+    ## dmel_rna_R2_G21_run1_R1_fastqc.html
+    ## dmel_rna_R2_G21_run1_R1_fastqc.zip
+    ## dmel_rna_R2_G21_run1_R2_fastqc.html
+    ## dmel_rna_R2_G21_run1_R2_fastqc.zip
+    ## dmel_rna_R2_G30_run1_R1_fastqc.html
+    ## dmel_rna_R2_G30_run1_R1_fastqc.zip
+    ## dmel_rna_R2_G30_run1_R2_fastqc.html
+    ## dmel_rna_R2_G30_run1_R2_fastqc.zip
+    ## dmel_rna_R2_G40_run1_R1_fastqc.html
+    ## dmel_rna_R2_G40_run1_R1_fastqc.zip
+    ## dmel_rna_R2_G40_run1_R2_fastqc.html
+    ## dmel_rna_R2_G40_run1_R2_fastqc.zip
+    ## dmel_rna_R2_G6_run1_R1_fastqc.html
+    ## dmel_rna_R2_G6_run1_R1_fastqc.zip
+    ## dmel_rna_R2_G6_run1_R2_fastqc.html
+    ## dmel_rna_R2_G6_run1_R2_fastqc.zip
+    ## dmel_rna_R3_G15_run1_R1_fastqc.html
+    ## dmel_rna_R3_G15_run1_R1_fastqc.zip
+    ## dmel_rna_R3_G15_run1_R2_fastqc.html
+    ## dmel_rna_R3_G15_run1_R2_fastqc.zip
+    ## dmel_rna_R3_G21_run1_R1_fastqc.html
+    ## dmel_rna_R3_G21_run1_R1_fastqc.zip
+    ## dmel_rna_R3_G21_run1_R2_fastqc.html
+    ## dmel_rna_R3_G21_run1_R2_fastqc.zip
+    ## dmel_rna_R3_G30_run1_R1_fastqc.html
+    ## dmel_rna_R3_G30_run1_R1_fastqc.zip
+    ## dmel_rna_R3_G30_run1_R2_fastqc.html
+    ## dmel_rna_R3_G30_run1_R2_fastqc.zip
+    ## dmel_rna_R3_G40_run1_R1_fastqc.html
+    ## dmel_rna_R3_G40_run1_R1_fastqc.zip
+    ## dmel_rna_R3_G40_run1_R2_fastqc.html
+    ## dmel_rna_R3_G40_run1_R2_fastqc.zip
+    ## dmel_rna_R3_G6_run1_R1_fastqc.html
+    ## dmel_rna_R3_G6_run1_R1_fastqc.zip
+    ## dmel_rna_R3_G6_run1_R2_fastqc.html
+    ## dmel_rna_R3_G6_run1_R2_fastqc.zip
+    ## raw
+    ## trimmed
 
 After this, we then realised that there was significant proportion of
 the 3’ read ends (~10-30%) which were adapter sequences. To alleviate
@@ -184,17 +182,16 @@ We then merged it with the list of consensus D. mel TEs and indexed it.
 
 ``` bash
 cd /Volumes/Data/Tools/RefGenomes/dmel/rna/dmel_TEs
-ls -lh
+ls
 ```
 
-    ## total 490352
-    ## -rw-r--r--@ 1 mbeaumont  staff    87M Jun 19 16:28 dmel-transcriptome-r6.52-TEs.fasta
-    ## -rw-r--r--  1 mbeaumont  staff   642B Jun 19 16:38 dmel-transcriptome-r6.52-TEs.fasta.amb
-    ## -rw-r--r--  1 mbeaumont  staff   1.2M Jun 19 16:38 dmel-transcriptome-r6.52-TEs.fasta.ann
-    ## -rw-r--r--  1 mbeaumont  staff    86M Jun 19 16:38 dmel-transcriptome-r6.52-TEs.fasta.bwt
-    ## -rw-r--r--  1 mbeaumont  staff   1.1M Jun 19 16:32 dmel-transcriptome-r6.52-TEs.fasta.fai
-    ## -rw-r--r--  1 mbeaumont  staff    21M Jun 19 16:38 dmel-transcriptome-r6.52-TEs.fasta.pac
-    ## -rw-r--r--  1 mbeaumont  staff    43M Jun 19 16:38 dmel-transcriptome-r6.52-TEs.fasta.sa
+    ## dmel-transcriptome-r6.52-TEs.fasta
+    ## dmel-transcriptome-r6.52-TEs.fasta.amb
+    ## dmel-transcriptome-r6.52-TEs.fasta.ann
+    ## dmel-transcriptome-r6.52-TEs.fasta.bwt
+    ## dmel-transcriptome-r6.52-TEs.fasta.fai
+    ## dmel-transcriptome-r6.52-TEs.fasta.pac
+    ## dmel-transcriptome-r6.52-TEs.fasta.sa
 
 Then we used bwa to map the forward and reverse reads to the reference.
 
@@ -277,6 +274,11 @@ gsnap -D "$refdir" -d "$refname" -t 12 -N 1 --format=sam --gunzip "$input_dir/dm
 ```
 
 Which provides the following sorted BAM files.
+
+``` bash
+cd /Volumes/Data/Projects/dmelR2_p-ele/rna/run2/map-GMAP/output
+ls
+```
 
 # Coverage
 
@@ -529,7 +531,7 @@ ggsave("figs/mRNA_overview.png", mRNA_plot, width = 12, height = 6, dpi = 600)
 knitr::include_graphics("figs/mRNA_overview.png")
 ```
 
-# Lok - Wilcoxon Test
+## Lok - Wilcoxon Test
 
 ``` r
 library(ggplot2)
