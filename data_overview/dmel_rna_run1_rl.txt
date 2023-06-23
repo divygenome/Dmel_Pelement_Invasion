@@ -1,0 +1,16 @@
+species	material	replicate	generation	run	totalreads	readlength	readtype
+dmel	rna	R1	G15	run1	17919773	150	paired
+dmel	rna	R1	G21	run1	17415757	150	paired
+dmel	rna	R1	G30	run1	16116118	150	paired
+dmel	rna	R1	G40	run1	17658726	150	paired
+dmel	rna	R1	G6	run1	15182477	150	paired
+dmel	rna	R2	G15	run1	18195062	150	paired
+dmel	rna	R2	G21	run1	15773656	150	paired
+dmel	rna	R2	G30	run1	15749983	150	paired
+dmel	rna	R2	G40	run1	18425395	150	paired
+dmel	rna	R2	G6	run1	16052901	150	paired
+dmel	rna	R3	G15	run1	16040102	150	paired
+dmel	rna	R3	G21	run1	17560544	150	paired
+dmel	rna	R3	G30	run1	18488825	150	paired
+dmel	rna	R3	G40	run1	18837267	150	paired
+dmel	rna	R3	G6	run1	16297920	150	paired
