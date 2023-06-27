@@ -15,7 +15,7 @@ All of the following .fq.gz read files were trimmed to the minimum read length o
 
 ```{bash}
 cd /Volumes/Data/Projects/DmelR2_P-ele/fastq/raw 
-ls -lh
+ls
 ```
 
 ```{bash, eval=FALSE}
@@ -37,7 +37,7 @@ The following trimmed .fq.gz files were generated.
 
 ```{bash}
 cd /Volumes/Data/Projects/DmelR2_P-ele/fastq/trimmed
-ls -lh
+ls
 ```
 
 # TE Mapping
@@ -123,10 +123,10 @@ This altered fast-miner.sh TEMiner script was then used to generate the followin
 
 ```{bash}
 cd /Volumes/Data/Projects/DmelR2_P-ele/software/teminer-code-r10/results/mel/bam
-ls -lh
+ls
 
 cd /Volumes/Data/Projects/DmelR2_P-ele/software/teminer-code-r10/results/mel/rpm
-ls -lh
+ls 
 ```
 
 # P-element copy number estimates
@@ -194,10 +194,10 @@ Generating the following .fq.gz.PPI251 files.
 
 ```{bash}
 cd /Volumes/Data/Projects/DmelR2_P-ele/software/teminer-code-r10/results/mel/deviate/PPI251
-ls -lh *fq.gz.*
+ls *fq.gz.*
 ```
 
-From the resulting .fq.gz.PPI251 files, we extracted and assembled the P-element copy number values into a single file.
+From the resulting .fq.gz.PPI251 files, we extracted and assembled the P-element copy number values into a single file, then removed the "G" from the generation coloumn to aid visualisation.
 
 ```{bash, eval=FALSE}
 
@@ -210,7 +210,7 @@ done
 
 ```{bash}
 cd /Volumes/Data/Projects/DmelR2_P-ele/software/teminer-code-r10/results/mel/deviate/PPI251
-ls -lh *pcopies*
+ls *pcopies*
 ```
 
 # Visualisation
