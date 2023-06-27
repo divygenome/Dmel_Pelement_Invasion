@@ -1,7 +1,7 @@
-D.mel P-element invasions
+DNA analysis
 ================
 Matthew Beaumont
-2023-04-14
+2023-06-27
 
 ``` bash
 knitr::opts_chunk$set(echo = TRUE)
@@ -17,51 +17,14 @@ cd /Volumes/Data/Projects/DmelR2_P-ele/fastq/raw
 ls -lh
 ```
 
-    ## total 191486464
-    ## -rw-r--r--@ 1 mbeaumont  staff   1.0G Mar 22 18:06 dmel_naive_CATTTT_1.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.2G Mar 22 18:08 dmel_naive_CATTTT_2.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.2G Mar 22 18:08 mel_R1G01_CGATGT_1.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.1G Mar 22 18:06 mel_R1G01_CGATGT_2.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.2G Mar 22 17:59 mel_R1G10_ACAGTG_1.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.2G Mar 22 18:03 mel_R1G10_ACAGTG_2.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.5G Mar 22 18:05 mel_R1G20_ACTTGA_1.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.4G Mar 22 18:07 mel_R1G20_ACTTGA_2.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.8G Mar 22 17:58 mel_R1G34_GTAGAG_1.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.7G Mar 22 18:03 mel_R1G34_GTAGAG_2.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.0G Mar 22 18:04 mel_R1G40_GTAGAG_1.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.1G Mar 22 18:01 mel_R1G40_GTAGAG_2.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.9G Mar 22 18:04 mel_R1G48_GTAGAG_1.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.9G Mar 22 18:00 mel_R1G48_GTAGAG_2.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.0G Mar 22 17:58 mel_R1G63_ATCACG_1.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.1G Mar 22 18:01 mel_R1G63_ATCACG_2.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.4G Mar 22 18:02 mel_R2G01_TTAGGC_1.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.3G Mar 22 17:59 mel_R2G01_TTAGGC_2.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.2G Mar 22 18:05 mel_R2G10_GCCAAT_1.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.1G Mar 22 18:07 mel_R2G10_GCCAAT_2.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.3G Mar 22 18:07 mel_R2G20_GGCTAC_1.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.3G Mar 22 18:05 mel_R2G20_GGCTAC_2.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.6G Mar 22 17:59 mel_R2G34_GGTAGC_1.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.5G Mar 22 18:02 mel_R2G34_GGTAGC_2.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.0G Mar 22 18:04 mel_R2G40_GGTAGC_1.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.1G Mar 22 18:00 mel_R2G40_GGTAGC_2.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.9G Mar 22 18:04 mel_R2G48_GGTAGC_1.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.9G Mar 22 18:01 mel_R2G48_GGTAGC_2.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.5G Mar 22 18:06 mel_R2G63_CGATGT_1.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.6G Mar 22 18:07 mel_R2G63_CGATGT_2.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.3G Mar 22 18:02 mel_R3G01_TGACCA_1.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.2G Mar 22 17:57 mel_R3G01_TGACCA_2.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.5G Mar 22 18:05 mel_R3G10_CAGATC_1.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.4G Mar 22 18:00 mel_R3G10_CAGATC_2.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.0G Mar 22 18:08 mel_R3G20_CTTGTA_1.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.9G Mar 22 18:06 mel_R3G20_CTTGTA_2.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.9G Mar 22 18:00 mel_R3G34_ATGAGC_1.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.8G Mar 22 18:03 mel_R3G34_ATGAGC_2.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.8G Mar 22 18:02 mel_R3G40_ATGAGC_1.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.9G Mar 22 17:58 mel_R3G40_ATGAGC_2.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.8G Mar 22 18:02 mel_R3G48_ATGAGC_1.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.8G Mar 22 17:58 mel_R3G48_ATGAGC_2.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.2G Mar 22 18:03 mel_R3G63_TTAGGC_1.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.9G Mar 22 17:59 mel_R3G63_TTAGGC_2.fq.gz
+    ## bash: line 0: cd: /Volumes/Data/Projects/DmelR2_P-ele/fastq/raw: No such file or directory
+    ## total 96
+    ## -rw-r--r--  1 mbeaumont  staff   6.0K Jun 27 11:34 D.mel_P-element_invasions_DNA.Rmd
+    ## -rw-r--r--  1 mbeaumont  staff    27K Apr 14 11:10 D.mel_P-element_invasions_DNA.md
+    ## drwxr-xr-x  4 mbeaumont  staff   136B Apr 13 15:00 D.mel_P-element_invasions_DNA_files
+    ## drwxr-xr-x  6 mbeaumont  staff   204B Jun 27 11:28 figs
+    ## -rw-r--r--  1 mbeaumont  staff   336B Apr 13 15:11 mel_pcopies_aligned.txt
+    ## drwxr-xr-x  9 mbeaumont  staff   306B Jun  5 10:41 validations
 
 ``` bash
 nohup bash scripts/trim.sh > trim.log &
@@ -85,51 +48,14 @@ cd /Volumes/Data/Projects/DmelR2_P-ele/fastq/trimmed
 ls -lh
 ```
 
-    ## total 132388592
-    ## -rw-r--r--  1 mbeaumont  staff   837M Mar 27 15:33 dmel_naive_CATTTT_1_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   823M Mar 27 15:52 dmel_naive_CATTTT_2_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.4G Mar 27 16:29 mel_R1G01_CGATGT_1_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.4G Mar 27 17:02 mel_R1G01_CGATGT_2_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.5G Mar 27 17:40 mel_R1G10_ACAGTG_1_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.4G Mar 27 18:14 mel_R1G10_ACAGTG_2_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.7G Mar 27 18:56 mel_R1G20_ACTTGA_1_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.6G Mar 27 19:34 mel_R1G20_ACTTGA_2_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.2G Mar 27 20:02 mel_R1G34_GTAGAG_1_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.2G Mar 27 20:30 mel_R1G34_GTAGAG_2_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.4G Mar 27 21:02 mel_R1G40_GTAGAG_1_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.4G Mar 27 21:35 mel_R1G40_GTAGAG_2_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.3G Mar 27 22:04 mel_R1G48_GTAGAG_1_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.3G Mar 27 22:32 mel_R1G48_GTAGAG_2_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.6G Mar 27 23:17 mel_R1G63_ATCACG_1_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.6G Mar 28 00:10 mel_R1G63_ATCACG_2_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.6G Mar 28 00:48 mel_R2G01_TTAGGC_1_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.5G Mar 28 01:22 mel_R2G01_TTAGGC_2_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.5G Mar 28 01:58 mel_R2G10_GCCAAT_1_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.4G Mar 28 02:29 mel_R2G10_GCCAAT_2_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.5G Mar 28 03:06 mel_R2G20_GGCTAC_1_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.5G Mar 28 03:40 mel_R2G20_GGCTAC_2_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.0G Mar 28 04:04 mel_R2G34_GGTAGC_1_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.0G Mar 28 04:26 mel_R2G34_GGTAGC_2_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.3G Mar 28 04:55 mel_R2G40_GGTAGC_1_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.4G Mar 28 05:26 mel_R2G40_GGTAGC_2_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.3G Mar 28 05:52 mel_R2G48_GGTAGC_1_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.3G Mar 28 06:19 mel_R2G48_GGTAGC_2_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.0G Mar 28 07:11 mel_R2G63_CGATGT_1_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.0G Mar 28 08:09 mel_R2G63_CGATGT_2_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.5G Mar 28 08:46 mel_R3G01_TGACCA_1_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.5G Mar 28 09:19 mel_R3G01_TGACCA_2_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.6G Mar 28 09:58 mel_R3G10_CAGATC_1_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.6G Mar 28 10:33 mel_R3G10_CAGATC_2_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.3G Mar 28 11:05 mel_R3G20_CTTGTA_1_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.3G Mar 28 11:35 mel_R3G20_CTTGTA_2_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.2G Mar 28 12:04 mel_R3G34_ATGAGC_1_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.2G Mar 28 12:31 mel_R3G34_ATGAGC_2_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.9G Mar 28 13:12 mel_R3G40_ATGAGC_1_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   2.0G Mar 28 13:56 mel_R3G40_ATGAGC_2_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.2G Mar 28 14:21 mel_R3G48_ATGAGC_1_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.2G Mar 28 14:46 mel_R3G48_ATGAGC_2_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.7G Mar 28 15:31 mel_R3G63_TTAGGC_1_trimmed.fq.gz
-    ## -rw-r--r--  1 mbeaumont  staff   1.8G Mar 28 16:27 mel_R3G63_TTAGGC_2_trimmed.fq.gz
+    ## bash: line 0: cd: /Volumes/Data/Projects/DmelR2_P-ele/fastq/trimmed: No such file or directory
+    ## total 96
+    ## -rw-r--r--  1 mbeaumont  staff   6.0K Jun 27 11:34 D.mel_P-element_invasions_DNA.Rmd
+    ## -rw-r--r--  1 mbeaumont  staff    27K Apr 14 11:10 D.mel_P-element_invasions_DNA.md
+    ## drwxr-xr-x  4 mbeaumont  staff   136B Apr 13 15:00 D.mel_P-element_invasions_DNA_files
+    ## drwxr-xr-x  6 mbeaumont  staff   204B Jun 27 11:28 figs
+    ## -rw-r--r--  1 mbeaumont  staff   336B Apr 13 15:11 mel_pcopies_aligned.txt
+    ## drwxr-xr-x  9 mbeaumont  staff   306B Jun  5 10:41 validations
 
 # TE Mapping
 
@@ -401,7 +327,7 @@ ls -lh *fq.gz.*
     ## -rw-r--r--  1 mbeaumont  staff    64K Mar 30 12:42 mel_R2G40_GGTAGC_1_trimmed.fq.gz.PPI251.pdf
     ## -rw-r--r--  1 mbeaumont  staff   386K Mar 30 12:42 mel_R2G40_GGTAGC_1_trimmed.fq.gz.PPI251.raw
     ## -rw-r--r--  1 mbeaumont  staff   427K Mar 30 12:47 mel_R2G48_GGTAGC_1_trimmed.fq.gz.PPI251
-    ## -rw-r--r--  1 mbeaumont  staff    63K Mar 30 12:47 mel_R2G48_GGTAGC_1_trimmed.fq.gz.PPI251.pdf
+    ## -rw-r--r--@ 1 mbeaumont  staff    63K Mar 30 12:47 mel_R2G48_GGTAGC_1_trimmed.fq.gz.PPI251.pdf
     ## -rw-r--r--  1 mbeaumont  staff   386K Mar 30 12:47 mel_R2G48_GGTAGC_1_trimmed.fq.gz.PPI251.raw
     ## -rw-r--r--  1 mbeaumont  staff   425K Mar 30 12:54 mel_R2G63_CGATGT_1_trimmed.fq.gz.PPI251
     ## -rw-r--r--@ 1 mbeaumont  staff    73K Mar 30 12:54 mel_R2G63_CGATGT_1_trimmed.fq.gz.PPI251.pdf
@@ -451,20 +377,23 @@ ls -lh *pcopies*
 
 # Visualisation
 
+## P-element copy number
+
 The copy number data was then visualised using ggplot2.
 
 ``` r
 library (ggplot2)
 theme_set(theme_bw())
-
+tresrep<-c("#e41a1c", "#377eb8", "#4daf4a")
+  
 d = read.table("mel_pcopies_aligned.txt")
 
-names(d)<-c ("Replicate", "Generation", "Copy number")
+names(d)<-c ("replicate", "generation", "copy number")
 
 print(d)
 ```
 
-    ##    Replicate Generation Copy number
+    ##    replicate generation copy number
     ## 1         R1        G01    0.229964
     ## 2         R1        G10    1.007938
     ## 3         R1        G20    4.177100
@@ -488,12 +417,32 @@ print(d)
     ## 21        R3        G63   20.984870
 
 ``` r
-ggplot(d, aes(x = Generation, y = `Copy number`, group= Replicate)) + 
-  geom_line(aes(color=Replicate)) +
-  geom_point(aes(color=Replicate)) +
-  ggtitle("P-element invasions in D.melanogaster")
+ggplot(d, aes(x = generation, y = `copy number`, group= replicate)) + 
+  geom_line(aes(color=replicate),linewidth=1) +
+  geom_point(aes(color=replicate)) +
+  ggtitle("P-element invasions in D. melanogaster") +
+  scale_colour_manual(values=tresrep)
 ```
 
 ![](D.mel_P-element_invasions_DNA_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+``` r
+ggsave("figs/pele_invasions_dmel.png", width = 8, height = 5, dpi = 600)
+
+knitr::include_graphics("figs/pele_invasions_dmel.png")
+```
+
+<img src="figs/pele_invasions_dmel.png" width="4800" />
+
+## DeviaTE
+
+We also generated DeviaTE plots for each replicate for each measured
+generation time-point.
+
+``` r
+knitr::include_graphics("figs/pele_coverage.png")
+```
+
+<img src="figs/pele_coverage.png" width="6641" />
 
 END.

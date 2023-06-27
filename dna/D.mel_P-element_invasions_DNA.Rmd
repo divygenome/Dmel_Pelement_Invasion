@@ -215,6 +215,8 @@ ls -lh *pcopies*
 
 # Visualisation
 
+## P-element copy number
+
 The copy number data was then visualised using ggplot2.
 
 ```{r}
@@ -224,19 +226,28 @@ tresrep<-c("#e41a1c", "#377eb8", "#4daf4a")
   
 d = read.table("mel_pcopies_aligned.txt")
 
-names(d)<-c ("Replicate", "Generation", "Copy number")
+names(d)<-c ("replicate", "generation", "copy number")
 
 print(d)
 
-ggplot(d, aes(x = Generation, y = `Copy number`, group= Replicate)) + 
-  geom_line(aes(color=Replicate),linewidth=1) +
-  geom_point(aes(color=Replicate)) +
+ggplot(d, aes(x = generation, y = `copy number`, group= replicate)) + 
+  geom_line(aes(color=replicate),linewidth=1) +
+  geom_point(aes(color=replicate)) +
   ggtitle("P-element invasions in D. melanogaster") +
   scale_colour_manual(values=tresrep)
 
 ggsave("figs/pele_invasions_dmel.png", width = 8, height = 5, dpi = 600)
 
 knitr::include_graphics("figs/pele_invasions_dmel.png")
+
+```
+
+## DeviaTE
+
+We also generated DeviaTE plots for each replicate for each measured generation time-point.
+
+```{R}
+knitr::include_graphics("figs/pele_coverage.png")
 
 ```
 
