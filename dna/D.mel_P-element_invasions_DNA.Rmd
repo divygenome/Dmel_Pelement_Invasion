@@ -222,9 +222,9 @@ The copy number data was then visualised using ggplot2.
 ```{r}
 library (ggplot2)
 theme_set(theme_bw())
-tresrep<-c("#e41a1c", "#377eb8", "#4daf4a")
+tresrep<-c("firebrick", "skyblue3", "chartreuse4")
   
-d = read.table("mel_pcopies_aligned.txt")
+d = read.table("mel_pcopies_values.txt")
 
 names(d)<-c ("replicate", "generation", "copy number")
 
@@ -234,7 +234,8 @@ ggplot(d, aes(x = generation, y = `copy number`, group= replicate)) +
   geom_line(aes(color=replicate),linewidth=1) +
   geom_point(aes(color=replicate)) +
   ggtitle("P-element invasions in D. melanogaster") +
-  scale_colour_manual(values=tresrep)
+  scale_colour_manual(values=tresrep) +
+  xlim(0, 65)
 
 ggsave("figs/pele_invasions_dmel.png", width = 8, height = 5, dpi = 600)
 

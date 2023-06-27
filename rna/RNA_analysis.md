@@ -1,7 +1,7 @@
 RNA analysis
 ================
 Matthew Beaumont
-2023-06-26
+2023-06-27
 
 ``` bash
 knitr::opts_chunk$set(echo = TRUE)
@@ -282,8 +282,8 @@ ls
 
 # Coverage
 
-We ran the following script to assess coverage of selected genes and the
-P-element.
+We ran the following script to assess coverage of selected gene
+transcripts and the P-element.
 
 ``` bash
 nohup zsh expression-splicing.sh > ../logs/splicing-expression.log
@@ -500,6 +500,9 @@ ggsave("figs/mRNA_sum_stats.png", combined_plot, width = 20, height = 10, dpi = 
 knitr::include_graphics("figs/mRNA_sum_stats.png")
 ```
 
+We then looked at the total expression levels of selected genes across
+all generations for each of the three replicates.
+
 ``` r
 library(ggplot2)
 theme_set(theme_bw())
@@ -508,15 +511,14 @@ genes<-c("PPI251","FBtr0083183_mRNA","FBtr0088034_mRNA","FBtr0086904_mRNA","FBtr
 sc<-c("p-element","spnE","cuff","dcr-2","hen1","krimp","loqs","r2d2","vas",
       "zuc","ago2-RB","armi-RB","aub","del","moon","piwi","tj-RB","rhino","rpl32","qin-RB","lok")
 
-h<-read.table("/Volumes/Data/Projects/dmelR2_p-ele/rna/run2/splicing-expression/expression/expr_wf.forr")        
+h<-read.table("/Volumes/Data/Projects/dmelR2_p-ele/rna/run2/splicing-expression/raw_expression/expr-spli.forr")        
 
 names(h)<-c("rep","time","tissue","strand","gene","pos","cov")
 
 for(i in 1:length(genes))
 {
   target<-genes[i]
-  short<-sc[i]
-  
+
   a<-subset(h,gene==target)
   a$time <- factor(a$time, levels=c("G6", "G15", "G21", "G30","G40"))
   
@@ -531,10 +533,14 @@ mRNA_plot <- ggplot() +
     ylab("coverage")+
     xlab("position")
 
-ggsave("figs/mRNA_overview.png", mRNA_plot, width = 12, height = 6, dpi = 600)
+ggsave("figs/mRNA_overview.png", mRNA_plot, width = 18, height = 6, dpi = 800)
 
 knitr::include_graphics("figs/mRNA_overview.png")
 ```
+
+Then we did the same again but this time looking at the expression
+levels of each of the selected genes individually, still across
+generations for each replicate.
 
 ``` r
 library(ggplot2)
@@ -544,30 +550,27 @@ theme_set(theme_bw())
 genes <- c("PPI251", "FBtr0083183_mRNA", "FBtr0088034_mRNA", "FBtr0086904_mRNA", "FBtr0087984_mRNA", "FBtr0087189_mRNA", "FBtr0080497_mRNA", "FBtr0079489_mRNA", "FBtr0445185_mRNA", "FBtr0080316_mRNA", "FBtr0075559_mRNA", "FBtr0100641_mRNA", "FBtr0080165_mRNA", "FBtr0081502_mRNA", "FBtr0073637_mRNA", "FBtr0080166_mRNA", "FBtr0301669_mRNA", "FBtr0086897_mRNA", "FBtr0085594_mRNA", "FBtr0329922_mRNA", "FBtr0081328_mRNA")
 sc <- c("p-element", "spnE", "cuff", "dcr-2", "hen1", "krimp", "loqs", "r2d2", "vas", "zuc", "ago2-RB", "armi-RB", "aub", "del", "moon", "piwi", "tj-RB", "rhino", "rpl32", "qin-RB", "lok")
 
-h <- read.table("/Volumes/Data/Projects/dmelR2_p-ele/rna/run2/splicing-expression/expression/expr_wf.forr")
+h <- read.table("/Volumes/Data/Projects/dmelR2_p-ele/rna/run2/splicing-expression/raw_expression/expr-spli.forr")
 names(h) <- c("rep", "time", "tissue", "strand", "gene", "pos", "cov")
 
-# Calculate the number of genes
 num_genes <- length(genes)
 
-# Define the number of columns and rows for the grid
 num_cols <- 5
 num_rows <- ceiling(num_genes / num_cols)
 
-# Create a new plot with a custom layout
 plot_new <- function() {
   grid.newpage()
   pushViewport(viewport(layout = grid.layout(num_rows, num_cols)))
 }
 
-# Initialize a counter for the genes
+# Counter for genes
 gene_counter <- 1
 
-plot_new()  # Create the initial plot
+plot_new()  # Initial plot
 
 for (i in 1:num_rows) {
   for (j in 1:num_cols) {
-    # Check if there are more genes to plot
+    # Check for more genes
     if (gene_counter <= num_genes) {
       target <- genes[gene_counter]
       short <- sc[gene_counter]
@@ -598,48 +601,9 @@ for (i in 1:num_rows) {
 
 ![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-2.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-3.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-4.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-5.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-6.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-7.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-8.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-9.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-10.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-11.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-12.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-13.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-14.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-15.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-16.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-17.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-18.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-19.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-20.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-21.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-22.png)<!-- -->
 
-## Lok - Wilcoxon Test
-
-``` r
-library(ggplot2)
-library(tidyverse)
-```
-
-    ## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-    ## ✔ dplyr     1.1.2     ✔ readr     2.1.4
-    ## ✔ forcats   1.0.0     ✔ stringr   1.5.0
-    ## ✔ lubridate 1.9.2     ✔ tibble    3.2.1
-    ## ✔ purrr     1.0.1     ✔ tidyr     1.3.0
-    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-    ## ✖ dplyr::filter() masks stats::filter()
-    ## ✖ dplyr::lag()    masks stats::lag()
-    ## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
-
-``` r
-theme_set(theme_bw())
-
-lok<-read.table("/Volumes/Data/Projects/dmelR2_p-ele/rna/run2/splicing-expression/expression/expr_wf.forr")        
-
-names(lok)<-c("rep","time","tissue","strand","gene","pos","cov")
-a<-subset(lok,gene=="FBtr0081328_mRNA" & strand=="se")
-mc<-a %>% group_by(rep,time) %>% summarise(mcov=mean(cov))
-```
-
-    ## `summarise()` has grouped output by 'rep'. You can override using the `.groups`
-    ## argument.
-
-``` r
-wilcox.test(subset(mc,rep=="R2")$mcov,subset(mc,rep!="R2")$mcov)
-```
-
-    ## 
-    ##  Wilcoxon rank sum exact test
-    ## 
-    ## data:  subset(mc, rep == "R2")$mcov and subset(mc, rep != "R2")$mcov
-    ## W = 25, p-value = 1
-    ## alternative hypothesis: true location shift is not equal to 0
-
 # Splicing & expression visualisation
+
+We first assess the
 
 ``` bash
 #!/bin/bash
@@ -812,9 +776,22 @@ Then we visualise it using ggplot.
 
 ``` r
 library(tidyverse)
+```
+
+    ## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+    ## ✔ dplyr     1.1.2     ✔ readr     2.1.4
+    ## ✔ forcats   1.0.0     ✔ stringr   1.5.0
+    ## ✔ lubridate 1.9.2     ✔ tibble    3.2.1
+    ## ✔ purrr     1.0.1     ✔ tidyr     1.3.0
+    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+    ## ✖ dplyr::filter() masks stats::filter()
+    ## ✖ dplyr::lag()    masks stats::lag()
+    ## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+
+``` r
 library(RColorBrewer)
 theme_set(theme_bw())
-tresrep<-c("#e41a1c", "#377eb8", "#4daf4a")
+tresrep<-c("firebrick", "skyblue3", "chartreuse4")
 
 t <- read_delim("/Volumes/Data/Projects/dmelR2_p-ele/rna/run2/splicing-expression/raw_expression/all-expressionlevel/expr.forr", delim = "\t", col_names = FALSE, comment = "#", show_col_types = FALSE)
 names(t)<-c("replicate","generation","run","gene","rawse","rawase","genlen","sense","antisense","total")
@@ -843,7 +820,7 @@ knitr::include_graphics("figs/P-ele_expression.png")
 library(tidyverse)
 library(RColorBrewer)
 theme_set(theme_bw())
-colrep1<-c("#e41a1c","#377eb8","#4daf4a")
+colrep1<-c("firebrick", "skyblue3", "chartreuse4")
 
 # Annotation
 # PPI251    ensembl exon    153 442 .   +   .   gene_id "pele"; transcript_id "pele1";
@@ -888,7 +865,7 @@ knitr::include_graphics("figs/IVS3.png")
 library(tidyverse)
 library(RColorBrewer)
 theme_set(theme_bw())
-colrep2<-c("#e41a1c","#377eb8","#4daf4a")
+colrep2<-c("firebrick", "skyblue3", "chartreuse4")
 
 # Annotation
 # PPI251    ensembl exon    153 442 .   +   .   gene_id "pele"; transcript_id "pele1";
@@ -934,7 +911,7 @@ knitr::include_graphics("figs/IVS2.png")
 library(tidyverse)
 library(RColorBrewer)
 theme_set(theme_bw())
-colrep3<-c("#e41a1c","#377eb8","#4daf4a")
+colrep3<-c("firebrick", "skyblue3", "chartreuse4")
 
 # Annotation
 # PPI251    ensembl exon    153 442 .   +   .   gene_id "pele"; transcript_id "pele1";
