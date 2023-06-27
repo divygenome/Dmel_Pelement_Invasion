@@ -1,7 +1,7 @@
 RNA analysis
 ================
 Matthew Beaumont
-2023-06-23
+2023-06-26
 
 ``` bash
 knitr::opts_chunk$set(echo = TRUE)
@@ -240,7 +240,7 @@ Then we need to build the database
 gmap_build -D . -d mel-transcriptome /Volumes/Temp2/Matt/rna/refgenomes/dmel/dmel_TEs/dmel-transcriptome-r6.52-TEs.fasta
 ```
 
-Then we run the following script to for alignment, while assessing for
+Then we run the following script for alignment, while assessing for
 novel spicing events.
 
 ``` bash
@@ -282,7 +282,8 @@ ls
 
 # Coverage
 
-We ran the following script to assess coverage.
+We ran the following script to assess coverage of selected genes and the
+P-element.
 
 ``` bash
 nohup zsh expression-splicing.sh > ../logs/splicing-expression.log
@@ -389,6 +390,8 @@ knitr::include_graphics("figs/mRNA_sense_antisense.png")
 
 # mRNA overview
 
+We genrated a list of summary statistics for the mRNA reads.
+
 ``` bash
 nohup zsh dmel_mRNA_overview.sh > ../logs/dmel_mRNA_overview.log
 ```
@@ -424,6 +427,8 @@ samtools view $input_dir/gt_R3G40.sort.bam | python $pyscript --sam - --sample-i
 # cat *.txt|perl -pe 's/-/\t/g'
 # cat *.txt|perl -pe 's/-/\t/'|perl -pe 's/-/\t/' > dmel_all.forr 
 ```
+
+Then visualised the most relevant ones in ggplot2.
 
 ``` r
 library(ggplot2)
@@ -500,7 +505,7 @@ library(ggplot2)
 theme_set(theme_bw())
 
 genes<-c("PPI251","FBtr0083183_mRNA","FBtr0088034_mRNA","FBtr0086904_mRNA","FBtr0087984_mRNA","FBtr0087189_mRNA","FBtr0080497_mRNA","FBtr0079489_mRNA","FBtr0445185_mRNA","FBtr0080316_mRNA","FBtr0075559_mRNA","FBtr0100641_mRNA","FBtr0080165_mRNA","FBtr0081502_mRNA","FBtr0073637_mRNA","FBtr0080166_mRNA","FBtr0301669_mRNA","FBtr0086897_mRNA","FBtr0085594_mRNA","FBtr0329922_mRNA","FBtr0081328_mRNA")
-sc<-c("P-element","spnE","cuff","Dcr-2","Hen1","krimp","loqs","r2d2","vas",
+sc<-c("p-element","spnE","cuff","dcr-2","hen1","krimp","loqs","r2d2","vas",
       "zuc","ago2-RB","armi-RB","aub","del","moon","piwi","tj-RB","rhino","rpl32","qin-RB","lok")
 
 h<-read.table("/Volumes/Data/Projects/dmelR2_p-ele/rna/run2/splicing-expression/expression/expr_wf.forr")        
@@ -520,8 +525,8 @@ for(i in 1:length(genes))
 }
   
 mRNA_plot <- ggplot() +
-    geom_polygon(data=s,mapping=aes(x=pos, y=cov), fill='grey', color='grey') +
-    geom_polygon(data=as, aes(x=pos, y=-cov), fill='lightgrey', color='lightgrey')+
+    geom_polygon(data=s,mapping=aes(x=pos, y=cov), fill='lightblue', color='lightblue') +
+    geom_polygon(data=as, aes(x=pos, y=-cov), fill='darksalmon', color='darksalmon')+
     facet_grid(time~rep)+
     ylab("coverage")+
     xlab("position")
@@ -530,6 +535,68 @@ ggsave("figs/mRNA_overview.png", mRNA_plot, width = 12, height = 6, dpi = 600)
 
 knitr::include_graphics("figs/mRNA_overview.png")
 ```
+
+``` r
+library(ggplot2)
+library(grid)
+theme_set(theme_bw())
+
+genes <- c("PPI251", "FBtr0083183_mRNA", "FBtr0088034_mRNA", "FBtr0086904_mRNA", "FBtr0087984_mRNA", "FBtr0087189_mRNA", "FBtr0080497_mRNA", "FBtr0079489_mRNA", "FBtr0445185_mRNA", "FBtr0080316_mRNA", "FBtr0075559_mRNA", "FBtr0100641_mRNA", "FBtr0080165_mRNA", "FBtr0081502_mRNA", "FBtr0073637_mRNA", "FBtr0080166_mRNA", "FBtr0301669_mRNA", "FBtr0086897_mRNA", "FBtr0085594_mRNA", "FBtr0329922_mRNA", "FBtr0081328_mRNA")
+sc <- c("p-element", "spnE", "cuff", "dcr-2", "hen1", "krimp", "loqs", "r2d2", "vas", "zuc", "ago2-RB", "armi-RB", "aub", "del", "moon", "piwi", "tj-RB", "rhino", "rpl32", "qin-RB", "lok")
+
+h <- read.table("/Volumes/Data/Projects/dmelR2_p-ele/rna/run2/splicing-expression/expression/expr_wf.forr")
+names(h) <- c("rep", "time", "tissue", "strand", "gene", "pos", "cov")
+
+# Calculate the number of genes
+num_genes <- length(genes)
+
+# Define the number of columns and rows for the grid
+num_cols <- 5
+num_rows <- ceiling(num_genes / num_cols)
+
+# Create a new plot with a custom layout
+plot_new <- function() {
+  grid.newpage()
+  pushViewport(viewport(layout = grid.layout(num_rows, num_cols)))
+}
+
+# Initialize a counter for the genes
+gene_counter <- 1
+
+plot_new()  # Create the initial plot
+
+for (i in 1:num_rows) {
+  for (j in 1:num_cols) {
+    # Check if there are more genes to plot
+    if (gene_counter <= num_genes) {
+      target <- genes[gene_counter]
+      short <- sc[gene_counter]
+      
+      a <- subset(h, gene == target)
+      a$time <- factor(a$time, levels = c("G6", "G15", "G21", "G30", "G40"))
+      
+      s <- subset(a, strand == "se")
+      as <- subset(a, strand == "ase")
+      
+      pushViewport(viewport(layout.pos.row = i, layout.pos.col = j))
+      
+      plot <- ggplot() +
+        geom_polygon(data = s, mapping = aes(x = pos, y = cov), fill = 'lightblue', color = 'lightblue') +
+        geom_polygon(data = as, aes(x = pos, y = -cov), fill = 'darksalmon', color = 'darksalmon') +
+        facet_grid(time ~ rep) +
+        ylab("coverage") +
+        xlab("position") +
+        ggtitle(paste(target, "-", short))
+      
+      print(plot)
+      
+      gene_counter <- gene_counter + 1
+    }
+  }
+}
+```
+
+![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-2.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-3.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-4.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-5.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-6.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-7.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-8.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-9.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-10.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-11.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-12.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-13.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-14.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-15.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-16.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-17.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-18.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-19.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-20.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-21.png)<!-- -->![](RNA_analysis_files/figure-gfm/unnamed-chunk-20-22.png)<!-- -->
 
 ## Lok - Wilcoxon Test
 

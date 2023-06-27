@@ -1,5 +1,5 @@
 ---
-title: "D.mel P-element invasions"
+title: "DNA analysis"
 author: "Matthew Beaumont"
 date: "`r Sys.Date()`"
 output: github_document
@@ -220,7 +220,8 @@ The copy number data was then visualised using ggplot2.
 ```{r}
 library (ggplot2)
 theme_set(theme_bw())
-
+tresrep<-c("#e41a1c", "#377eb8", "#4daf4a")
+  
 d = read.table("mel_pcopies_aligned.txt")
 
 names(d)<-c ("Replicate", "Generation", "Copy number")
@@ -228,9 +229,14 @@ names(d)<-c ("Replicate", "Generation", "Copy number")
 print(d)
 
 ggplot(d, aes(x = Generation, y = `Copy number`, group= Replicate)) + 
-  geom_line(aes(color=Replicate)) +
+  geom_line(aes(color=Replicate),linewidth=1) +
   geom_point(aes(color=Replicate)) +
-  ggtitle("P-element invasions in D.melanogaster")
+  ggtitle("P-element invasions in D. melanogaster") +
+  scale_colour_manual(values=tresrep)
+
+ggsave("figs/pele_invasions_dmel.png", width = 8, height = 5, dpi = 600)
+
+knitr::include_graphics("figs/pele_invasions_dmel.png")
 
 ```
 
