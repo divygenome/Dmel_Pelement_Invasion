@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 All of the following .fq.gz read files were trimmed to the minimum read length of the shortest reads from all files (100) for uniformity.
 
 ```{bash}
-cd /Volumes/Data/Projects/DmelR2_P-ele/fastq/raw 
+cd /Volumes/Data/Projects/DmelR2_P-ele/dna/fastq/raw 
 ls
 ```
 
@@ -36,7 +36,7 @@ for i in fastq/*.fq.gz
 The following trimmed .fq.gz files were generated.
 
 ```{bash}
-cd /Volumes/Data/Projects/DmelR2_P-ele/fastq/trimmed
+cd /Volumes/Data/Projects/DmelR2_P-ele/dna/fastq/trimmed
 ls
 ```
 
@@ -230,7 +230,7 @@ names(d)<-c ("replicate", "generation", "copy number")
 
 print(d)
 
-pele_dna_cn <- ggplot(d, aes(x = generation, y = `copy number`, group= replicate)) + 
+pele_dna_cn <- ggplot(d, aes(x = generation, y = `copy number`, group= replicate, linetype = replicate)) + 
   geom_line(aes(color=replicate),linewidth=1) +
   geom_point(aes(color=replicate)) +
   ggtitle("P-element invasions in D. melanogaster") +
@@ -251,5 +251,3 @@ We also generated DeviaTE plots for each replicate for each measured generation 
 knitr::include_graphics("figs/pele_coverage.png")
 
 ```
-
-END.
