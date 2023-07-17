@@ -1,17 +1,15 @@
----
-title: "5 - Edge-R - differential expression"
-author: "Matthew Beaumont"
-date: "`r Sys.Date()`"
-output: github_document
----
+5 - Edge-R - differential expression
+================
+Matthew Beaumont
+2023-07-17
 
-```{bash, eval=FALSE}
+``` bash
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 Prepped for addition of naive datasets.
 
-```{R eval=FALSE}
+``` r
 library(tidyverse)
 library(RColorBrewer)
 library(dplyr)
@@ -145,11 +143,19 @@ pvs2<-ggplot(data = dflmvs2, aes(y = -log10(pval), x = logfc,color=col )) +
 #grid.arrange(p1, p2, p3, ncol=3)
 
 plot(pvs2)
-
 ```
 
-```{R}
+``` r
 library(edgeR)
+```
+
+    ## Warning: package 'edgeR' was built under R version 4.2.1
+
+    ## Loading required package: limma
+
+    ## Warning: package 'limma' was built under R version 4.2.1
+
+``` r
 library(ggplot2)
 
 counts <- read.table("/Volumes/Data/Projects/dmelR2_p-ele/rna/run2/map-bwamem/genome/dmel_fc_counts_bwa.txt", header = TRUE, skip = 1, stringsAsFactors = FALSE)
@@ -229,7 +235,18 @@ volcano_plot_R1_R3 <- ggplot(de_table_R1_R3, aes(x = logFC, y = -log10(PValue)))
   theme(legend.position = "bottom")
 
 print(volcano_plot_R1_R2)
-print(volcano_plot_R2_R3)
-print(volcano_plot_R1_R3)
-
 ```
+
+![](5_EgdeR_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+``` r
+print(volcano_plot_R2_R3)
+```
+
+![](5_EgdeR_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->
+
+``` r
+print(volcano_plot_R1_R3)
+```
+
+![](5_EgdeR_files/figure-gfm/unnamed-chunk-3-3.png)<!-- -->
