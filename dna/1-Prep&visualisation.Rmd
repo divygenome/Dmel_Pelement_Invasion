@@ -247,6 +247,9 @@ knitr::include_graphics("figs/pele_invasions_dmel.png")
 
 We also generated DeviaTE plots for each replicate for each measured generation time-point.
 
+
+
+
 ```{R}
 knitr::include_graphics("figs/pele_coverage.png")
 

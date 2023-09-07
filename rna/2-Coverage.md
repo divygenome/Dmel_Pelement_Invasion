@@ -1,17 +1,16 @@
----
-title: "2 - Coverage"
-author: "Matthew Beaumont"
-date: "`r Sys.Date()`"
-output: github_document
----
+2 - Coverage
+================
+Matthew Beaumont
+2023-09-07
 
-```{bash, eval=FALSE}
+``` bash
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-We ran the following script to assess coverage of selected gene transcripts and the P-element.
+We ran the following script to assess coverage of selected gene
+transcripts and the P-element.
 
-``` {bash eval=FALSE}
+``` bash
 #!/bin/bash
 
 fai="/Volumes/Data/Tools/RefGenomes/dmel/rna/dmel_TEs/dmel-transcriptome-r6.52-TEs.fasta.fai"
@@ -45,10 +44,9 @@ samtools view $input_dir/dmel_R3G40_run2.sort.bam | python $pyscript --sam - --s
 
 # Combine outputs into single file, separating ID.
 # cat *.txt| perl -pe 's/-/\t/'|perl -pe 's/-/\t/' > expr-spli.forr
-
 ```
 
-``` {bash eval=FALSE}
+``` bash
 #!/bin/bash
 
 fai="/Volumes/Data/Tools/RefGenomes/dmel/rna/dmel_TEs/dmel-transcriptome-r6.52-TEs.fasta.fai"
@@ -82,16 +80,16 @@ samtools view $input_dir/dmel_R3G40_run2.sort.bam | python $pyscript --sam - --s
 
 # Combine outputs into single file, separating ID.
 # cat *.txt| perl -pe 's/-/\t/'|perl -pe 's/-/\t/' > expr-spli.forr
-
 ```
 
 Then visualised it with ggplot2.
 
 # Overall gene coverage
 
-We assessed the coverage of all genes across each replicate at each generation from the two used alignment tools.
- 
-```{R}
+We assessed the coverage of all genes across each replicate at each
+generation from the two used alignment tools.
+
+``` r
 library(ggplot2)
 theme_set(theme_bw())
 
@@ -116,10 +114,11 @@ mRNA_plot_b <- ggplot() +
 ggsave("figs/overall_mRNA_cov_bwa.png", mRNA_plot_b, width = 18, height = 6, dpi = 500)
 
 knitr::include_graphics(file.path(getwd(), "figs", "overall_mRNA_cov_bwa.png"))
-
 ```
- 
-```{R}
+
+<img src="figs/overall_mRNA_cov_bwa.png" width="9000" />
+
+``` r
 library(ggplot2)
 theme_set(theme_bw())
 
@@ -144,12 +143,13 @@ mRNA_plot_g <- ggplot() +
 ggsave("figs/overall_mRNA_cov_gsnap.png", mRNA_plot_g, width = 18, height = 6, dpi = 500)
 
 knitr::include_graphics("figs/overall_mRNA_cov_gsnap.png")
+```
 
-``` 
+<img src="figs/overall_mRNA_cov_gsnap.png" width="9000" />
 
-We then moved on to only look at selected genes from each dataset. 
+We then moved on to only look at selected genes from each dataset.
 
-```{R}
+``` r
 library(ggplot2)
 theme_set(theme_bw())
 
@@ -170,7 +170,12 @@ names(h)<-c("rep","time","tissue","strand","gene","pos","cov")
   s<-subset(a,strand=="se")
   as<-subset(a,strand=="ase")
 }
-  
+```
+
+    ## Warning in gene == target: longer object length is not a multiple of shorter
+    ## object length
+
+``` r
 selgenes_b <- ggplot() +
     geom_line(data=s,mapping=aes(x=pos, y=cov), color='lightblue3') +
     geom_line(data=as, aes(x=pos, y=-cov), color='darksalmon')+
@@ -181,10 +186,11 @@ selgenes_b <- ggplot() +
 ggsave("figs/mRNA_selgenes_bwa.png", selgenes_b, width = 18, height = 6, dpi = 500)
 
 knitr::include_graphics("figs/mRNA_selgenes_bwa.png")
-
 ```
 
-```{R}
+<img src="figs/mRNA_selgenes_bwa.png" width="9000" />
+
+``` r
 library(ggplot2)
 theme_set(theme_bw())
 
@@ -216,16 +222,18 @@ selgenes_g <- ggplot() +
 ggsave("figs/mRNA_selgenes_gsnap.png", selgenes_g, width = 18, height = 6, dpi = 500)
 
 knitr::include_graphics("figs/mRNA_selgenes_gsnap.png")
-
 ```
+
+<img src="figs/mRNA_selgenes_gsnap.png" width="9000" />
 
 # Selected gene coverage
 
-We looked at the coverage for selected genes from both alignment tool coverage datasets.
- 
+We looked at the coverage for selected genes from both alignment tool
+coverage datasets.
+
 ## bwa
 
-```{R}
+``` r
 library(ggplot2)
 
 transcript_to_gene <- c(
@@ -278,12 +286,13 @@ cov_plot <- ggplot(data, aes(x = Position, y = Coverage, color = Type)) +
 ggsave("figs/mRNA_sa_bwa.png", cov_plot, width = 18, height = 10, bg = "white", dpi = 500)
 
 knitr::include_graphics("figs/mRNA_sa_bwa.png")
-
 ```
+
+<img src="figs/mRNA_sa_bwa.png" width="9000" />
 
 ## GSNAP
 
-```{R}
+``` r
 library(ggplot2)
 
 # Mapping between transcript IDs and gene IDs
@@ -345,14 +354,18 @@ cov_plot <- ggplot(data, aes(x = Position, y = Coverage, color = Type)) +
 ggsave("figs/mRNA_sa_GSNAP.png", cov_plot, width = 18, height = 10, bg = "white", dpi = 300)
 
 knitr::include_graphics("figs/mRNA_sa_GSNAP.png")
-
 ```
+
+<img src="figs/mRNA_sa_GSNAP.png" width="5400" />
 
 ## Selected gene coverage - time-series
 
-Then we did the same again, this time looking at the coverage of each of the selected genes across each generation time-point for each replicate.
+Then we did the same again, this time looking at the coverage of each of
+the selected genes across each generation time-point for each replicate.
 
-```{R}
+### bwa
+
+``` r
 library(ggplot2)
 library(grid)
 theme_set(theme_bw())
@@ -403,10 +416,13 @@ for (i in 1:num_rows) {
     }
   }
 }
-
 ```
 
-```{R}
+![](2-Coverage_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-10-3.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-10-4.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-10-5.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-10-6.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-10-7.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-10-8.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-10-9.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-10-10.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-10-11.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-10-12.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-10-13.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-10-14.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-10-15.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-10-16.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-10-17.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-10-18.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-10-19.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-10-20.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-10-21.png)<!-- -->
+
+### GSNAP
+
+``` r
 library(ggplot2)
 library(grid)
 theme_set(theme_bw())
@@ -459,28 +475,36 @@ for (i in 1:num_rows) {
     }
   }
 }
-
 ```
+
+![](2-Coverage_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-3.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-4.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-5.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-6.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-7.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-8.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-9.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-10.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-11.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-12.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-13.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-14.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-15.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-16.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-17.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-18.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-19.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-20.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-21.png)<!-- -->
 
 # featurecounts
 
-First, we needed to obtain a GTF annotation file for the D. mel reference genome used for mapping (r6.52). Then we attached a GFF file containing a list of consensus TEs. Additionally, we needed to manually enter in the data for the exon locations for the P-element, as this was not included in the GFF. 
+First, we needed to obtain a GTF annotation file for the D. mel
+reference genome used for mapping (r6.52). Then we attached a GFF file
+containing a list of consensus TEs. Additionally, we needed to manually
+enter in the data for the exon locations for the P-element, as this was
+not included in the GFF.
 
-```{bash}
+``` bash
 cd /Volumes/Data/Tools/RefGenomes/dmel/annotations
 ls *TEs.gtf
-
 ```
-We then used this annotation file with featurecounts for assessing expression levels in all mapped bam files, using the following command (make sure that featurecounts is active in the current environment).
 
-## bwa
+    ## dmel_r6.52_TEs.gtf
 
-```{bash, eval=FALSE}
+We then used this annotation file with featurecounts for assessing
+expression levels in all mapped bam files, using the following command
+(make sure featurecounts is active in the current environment).
+
+### bwa
+
+``` bash
 featureCounts -T 20 -M -p -Q 20 -a /Volumes/Data/Tools/RefGenomes/dmel/annotations/dmel_r6.52_TEs.gtf -o dmel_fc_counts_bwa.txt dmel_R3G40_run2.sort.bam dmel_R1G6_run2.sort.bam dmel_R1G15_run2.sort.bam dmel_R1G21_run2.sort.bam dmel_R1G30_run2.sort.bam dmel_R1G40_run2.sort.bam dmel_R2G6_run2.sort.bam dmel_R2G15_run2.sort.bam dmel_R2G21_run2.sort.bam dmel_R2G30_run2.sort.bam dmel_R2G40_run2.sort.bam dmel_R3G6_run2.sort.bam dmel_R3G15_run2.sort.bam dmel_R3G21_run2.sort.bam dmel_R3G30_run2.sort.bam
-
 ```
 
-```{R}
+``` r
 library(ggplot2)
 library(tidyr)
 
@@ -511,29 +535,43 @@ long_data$Generation <- as.numeric(long_data$Generation)
 count_bwa <- ggplot(long_data, aes(x = Generation, y = Counts, color = Replicate, group = Replicate, linetype = Replicate)) +
   geom_line() +
   geom_point() +
-  labs(x = "Generations", y = "Counts", color = "Replicate", linetype = "Replicate") +
+  labs(x = "generation", y = "count", color = "Replicate", linetype = "Replicate") +
   facet_wrap(~Geneid, ncol = 1) +
   theme_bw()
 
 ggsave("figs/count_bwa.png", count_bwa, width = 15, height = 10, dpi = 600)
 
 knitr::include_graphics("figs/count_bwa.png")
-
 ```
+
+<img src="figs/count_bwa.png" width="9000" />
 
 /Volumes/Data/Projects/dmelR2_p-ele/rna/run2/map-bwamem/genome/dmel_fc_counts_bwa.txt
 
-## GSNAP
+### GSNAP
 
-```{bash, eval=FALSE}
+``` bash
 featureCounts -T 20 -M -p -Q 20 -a /Volumes/Data/Tools/RefGenomes/dmel/annotations/dmel_r6.52_TEs.gtf -o dmel_fc_counts_gsnap.txt gt_R1G6.sort.bam gt_R1G15.sort.bam gt_R1G21.sort.bam gt_R1G30.sort.bam gt_R1G40.sort.bam gt_R2G6.sort.bam gt_R2G15.sort.bam gt_R2G21.sort.bam gt_R2G30.sort.bam gt_R2G40.sort.bam gt_R3G6.sort.bam gt_R3G15.sort.bam gt_R3G21.sort.bam gt_R3G30.sort.bam gt_R3G40.sort.bam
 ```
 
-```{R}
+``` r
 library(ggplot2)
 library(tidyr)
 library(dplyr)
+```
 
+    ## 
+    ## Attaching package: 'dplyr'
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     filter, lag
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     intersect, setdiff, setequal, union
+
+``` r
 data_gsnap <- read.table("/Volumes/Data/Projects/dmelR2_p-ele/rna/run2/map-GSNAP/output_genome/dmel_fc_counts_gsnap.txt", header = TRUE, comment.char = "#", sep = "\t")
 data_gsnap <- data_gsnap[-1, ]
 colnames(data_gsnap) <- gsub(".sort.bam", "", colnames(data_gsnap))
@@ -565,7 +603,6 @@ count_gsnap <- ggplot(long_data_g, aes(x = Generation, y = Counts, color = Repli
 ggsave("figs/count_gsnap.png", count_gsnap, width = 15, height = 10, dpi = 600)
 
 knitr::include_graphics("figs/count_gsnap.png")
-
-
 ```
 
+<img src="figs/count_gsnap.png" width="9000" />
