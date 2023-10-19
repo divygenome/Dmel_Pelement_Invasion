@@ -1,7 +1,7 @@
 2 - Coverage
 ================
 Matthew Beaumont
-2023-09-07
+2023-09-29
 
 ``` bash
 knitr::opts_chunk$set(echo = TRUE)
@@ -461,23 +461,37 @@ for (i in 1:num_rows) {
     
       #pushViewport(viewport(layout.pos.row = i, layout.pos.col = j))
       
-      plot <- ggplot() +
-        geom_line(data = s, mapping = aes(x = pos, y = cov), color = 'lightblue3') +
-        geom_line(data = as, aes(x = pos, y = -cov), color = 'darksalmon') +
-        facet_grid(time ~ rep) +
-        ylab("coverage") +
-        xlab("position") +
-        ggtitle(paste(target, "-", short))
-      
-      print(plot)
-      
-      gene_counter <- gene_counter + 1
+library(ggplot2)
+
+plot <- ggplot() +
+  geom_line(data = s, mapping = aes(x = pos, y = cov), color = 'lightblue3') +
+  geom_line(data = as, aes(x = pos, y = -cov), color = 'darksalmon') +
+  facet_grid(time ~ rep) +
+  ylab("coverage") +
+  xlab("position") +
+  ggtitle(paste(target, "-", short)) +
+  theme(
+    axis.title = element_text(size = 12),  # Adjust font size for axis labels
+    strip.text = element_text(size = 14, face = "bold")  # Set facet labels font size and make them bold
+  )
+
+print(plot)
+
+      #gene_counter <- gene_counter + 1
     }
   }
 }
 ```
 
-![](2-Coverage_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-3.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-4.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-5.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-6.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-7.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-8.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-9.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-10.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-11.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-12.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-13.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-14.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-15.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-16.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-17.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-18.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-19.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-20.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-21.png)<!-- -->
+![](2-Coverage_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-3.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-4.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-5.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-6.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-7.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-8.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-9.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-10.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-11.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-12.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-13.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-14.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-15.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-16.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-17.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-18.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-19.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-20.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-21.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-22.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-23.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-24.png)<!-- -->![](2-Coverage_files/figure-gfm/unnamed-chunk-11-25.png)<!-- -->
+
+``` r
+ggsave("figs/mRNA_ppi251.png", plot, width = 16, height = 6, bg = "white", dpi = 500)
+
+knitr::include_graphics("figs/mRNA_ppi251.png")
+```
+
+<img src="figs/mRNA_ppi251.png" width="8000" />
 
 # featurecounts
 

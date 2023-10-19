@@ -230,16 +230,34 @@ names(d)<-c ("replicate", "generation", "copy number")
 
 print(d)
 
-pele_dna_cn <- ggplot(d, aes(x = generation, y = `copy number`, group= replicate, linetype = replicate)) + 
+pele_dna <- ggplot(d, aes(x = generation, y = `copy number`, group= replicate)) + 
   geom_line(aes(color=replicate),linewidth=1) +
   geom_point(aes(color=replicate)) +
   ggtitle("P-element invasions in D. melanogaster") +
   scale_colour_manual(values=tresrep) +
   xlim(0, 65)
 
-ggsave("figs/pele_invasions_dmel.png", pele_dna_cn, width = 8, height = 5, dpi = 600)
+ggsave("figs/pele_dna.png", pele_dna, width = 8, height = 5, dpi = 600)
 
-knitr::include_graphics("figs/pele_invasions_dmel.png")
+knitr::include_graphics("figs/pele_dna.png")
+
+pele_dna_2 <- ggplot(d, aes(x = generation, y = `copy number`, group = replicate)) + 
+  geom_point(aes(colour = replicate), size = 3.5, shape = 18) +
+  geom_path(aes(colour = replicate), linewidth = 1.5) +
+  scale_colour_manual(values = tresrep) +
+  scale_size(guide = "none") +  
+  xlim(0, 65) +
+  theme_bw() +
+  theme(panel.grid = element_blank(), 
+        plot.margin = margin(10, 10, 10, 10, "pt"),
+        legend.position = c(0.1, 0.8),
+        legend.box.background = element_rect(size = 0.5))
+
+pele_dna_sl <- pele_dna_2 + guides(color = guide_legend(title = NULL))
+
+ggsave("figs/pele_dna_sl.png", pele_dna_sl, width = 6, height = 4, dpi = 600)
+
+knitr::include_graphics("figs/pele_dna_sl.png")
 
 ```
 
@@ -247,10 +265,9 @@ knitr::include_graphics("figs/pele_invasions_dmel.png")
 
 We also generated DeviaTE plots for each replicate for each measured generation time-point.
 
-
-
-
 ```{R}
 knitr::include_graphics("figs/pele_coverage.png")
+knitr::include_graphics("figs/pele_coverage_s.png")
+knitr::include_graphics("figs/pele_coverage_xs.png")
 
 ```

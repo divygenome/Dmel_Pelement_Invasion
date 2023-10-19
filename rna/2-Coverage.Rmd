@@ -449,20 +449,30 @@ for (i in 1:num_rows) {
     
       #pushViewport(viewport(layout.pos.row = i, layout.pos.col = j))
       
-      plot <- ggplot() +
-        geom_line(data = s, mapping = aes(x = pos, y = cov), color = 'lightblue3') +
-        geom_line(data = as, aes(x = pos, y = -cov), color = 'darksalmon') +
-        facet_grid(time ~ rep) +
-        ylab("coverage") +
-        xlab("position") +
-        ggtitle(paste(target, "-", short))
-      
-      print(plot)
-      
-      gene_counter <- gene_counter + 1
+library(ggplot2)
+
+plot <- ggplot() +
+  geom_line(data = s, mapping = aes(x = pos, y = cov), color = 'lightblue3') +
+  geom_line(data = as, aes(x = pos, y = -cov), color = 'darksalmon') +
+  facet_grid(time ~ rep) +
+  ylab("coverage") +
+  xlab("position") +
+  ggtitle(paste(target, "-", short)) +
+  theme(
+    axis.title = element_text(size = 12),  # Adjust font size for axis labels
+    strip.text = element_text(size = 14, face = "bold")  # Set facet labels font size and make them bold
+  )
+
+print(plot)
+
+      #gene_counter <- gene_counter + 1
     }
   }
 }
+
+ggsave("figs/mRNA_ppi251.png", plot, width = 16, height = 6, bg = "white", dpi = 500)
+
+knitr::include_graphics("figs/mRNA_ppi251.png")
 
 ```
 
