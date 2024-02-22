@@ -1,7 +1,7 @@
 4 - Expression & splicing
 ================
 Matthew Beaumont
-2023-10-18
+2024-02-22
 
 ``` bash
 knitr::opts_chunk$set(echo = TRUE)
@@ -91,6 +91,7 @@ its’ three introns together in ggplot2.
 
 ``` r
 library(ggplot2)
+library(svglite)
 theme_set(theme_bw())
 
 target<-"PPI251"
@@ -137,6 +138,7 @@ expr_spli_plot <- ggplot() +
   theme(strip.text = element_text(size = 14, face = "bold")) 
 
 
+ggsave("figs/expr_spli.svg", expr_spli_plot, width = 14, height = 8)
 ggsave("figs/expr_spli.png", expr_spli_plot, width = 14, height = 8, dpi = 600)
 
 knitr::include_graphics("figs/expr_spli.png")
