@@ -47,7 +47,7 @@ done
 
 # Reference genome - preparation
 
-First, we obtained the reference D. mel fasta file from flybase, then run the following command to remove everything but the Flybase ID from the identifier line, while also attaching "_mRNA" for downstream analysis.
+First, we obtained the reference D. mel fasta file from Flybase, then ran the following command to remove everything but the Flybase ID from the identifier line, while also attaching "_mRNA" for downstream analysis.
 
 ``` {bash eval=FALSE}
 less dmel-all-transcript-r6.52.fasta | cut -f1 -d";" | gsed 's/ type=/_/' > dmel-transcriptome-r6.52.fasta

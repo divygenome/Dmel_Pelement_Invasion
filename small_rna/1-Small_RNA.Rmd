@@ -1,0 +1,762 @@
+---
+title: "Visualisation"
+author: "Matthew Beaumont"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+We obtained small RNA sequencing reads of several time-points throughout the invasion in each replicate:
+
+```{bash}
+cd /Volumes/Data/Projects/dmelR2_p-ele/small_RNA/clean
+ls *gz
+```
+
+We then mapped these fastq files to the D. mel transcriptome + a consensus list of D. mel TEs, using Novoalign:
+
+```{bash, eval=FALSE}
+
+#!/bin/bash
+
+input_dir="/Volumes/Data/Projects/dmelR2_p-ele/small_RNA/clean"          # Directory with .fq.gz files
+bam_output_dir="/Volumes/Data/Projects/dmelR2_p-ele/small_RNA/clean/bam"    # Directory for BAM files
+sam_output_dir="/Volumes/Data/Projects/dmelR2_p-ele/small_RNA/clean/sam"    # Directory for SAM files
+ref_genome="/Volumes/Data/Tools/RefGenomes/dmel/rna/dmel-alltranscripts_consensus_TEs.fasta"
+novoalign_index="/Volumes/Data/Tools/RefGenomes/dmel/rna/dmel-alltranscripts_consensus_TEs.nvi"
+
+mkdir -p "$bam_output_dir"
+mkdir -p "$sam_output_dir"
+
+for gzipped_fq in "$input_dir"/*.fastq.gz; do
+    base_name=$(basename "$gzipped_fq" .fastq.gz)
+    unzipped_fq="$input_dir/${base_name}.fastq"
+    bam_output="$bam_output_dir/${base_name}.bam"
+    sam_output="$sam_output_dir/${base_name}.sam"
+
+    echo "Unzipping $gzipped_fq -> $unzipped_fq"
+    if ! gunzip -c "$gzipped_fq" > "$unzipped_fq"; then
+        echo "Failed to unzip $gzipped_fq"
+        continue
+    fi
+
+    echo "Mapping $unzipped_fq to $ref_genome -> $bam_output"
+    if ! novoalign -d "$novoalign_index" -f "$unzipped_fq" -F STDFQ -o SAM -o FullNW -r RANDOM | samtools view -bS - > "$bam_output"; then
+        echo "Failed to map $unzipped_fq"
+        continue
+    fi
+
+    echo "Converting $bam_output to $sam_output"
+    if ! samtools view -h -o "$sam_output" "$bam_output"; then
+        echo "Failed to convert $bam_output to $sam_output"
+        continue
+    fi
+
+    echo "Finished processing $gzipped_fq"
+
+    rm "$unzipped_fq"
+done
+
+echo "Processing complete."
+```
+
+This resulted in the following mapped SAM files:
+
+```{bash}
+cd /Volumes/Data/Projects/dmelR2_p-ele/small_RNA/sam
+ls *sam
+```
+
+We then wanted to assess the number of both piRNAs and siRNAs mapping to the P-element in each replicate as the invasion progressed.
+
+To do so, we quantified the number of small RNA reads mapping to the P-element of 23-29 nt in length (piRNAs) and all between 20-22 nt (siRNAs), giving us the following:
+
+```{bash}
+cd /Volumes/Data/Projects/dmelR2_p-ele/small_RNA/PPI251_comp/all
+head -10 dmel_pirna_comp_PPI251.txt
+```
+
+We can then plot the number of piRNAs over time for each replicate:
+
+```{R}
+# Load necessary libraries
+library(ggplot2)
+library(dplyr)
+
+tresrep <- c("firebrick", "skyblue3", "chartreuse4")
+
+# Sample data
+data <- read.table("/Volumes/Data/Projects/dmelR2_p-ele/small_RNA/PPI251_comp/all/dmel_pirna_comp_PPI251.txt",
+                   header = TRUE, sep = "\t")
+
+# Ensure the Count and Tot columns are numeric
+data <- data %>%
+  mutate(Count = as.numeric(Count),
+         Tot = as.numeric(Tot))
+
+# Extract replicate and generation from SampleID
+data <- data %>%
+  mutate(
+    Replicate = gsub("dmel_R([0-9]+)_G[0-9]+_run[0-9]+_clean.sorted", "\\1", SampleID),
+    Generation = gsub("dmel_R[0-9]+_G([0-9]+)_run[0-9]+_clean.sorted", "\\1", SampleID),
+    Replicate = as.factor(Replicate),
+    Generation = as.numeric(Generation)
+  )
+
+# Filter data to include only piRNA
+piRNA_data <- data %>% filter(Class == "piRNA")
+
+# Calculate the normalized piRNA counts (Counts per million piRNAs)
+piRNA_data <- piRNA_data %>%
+  mutate(NormalizedCount = (Count / Tot) * 1e6)  # Normalize by the total number of piRNAs
+
+# Summarize the normalized counts of piRNAs by replicate and generation
+summary_data <- piRNA_data %>%
+  group_by(Replicate, Generation) %>%
+  summarise(NormalizedTotalCount = sum(NormalizedCount), .groups = 'drop')
+
+# Plot the normalized number of piRNAs over each generation for each replicate
+ppirnas <- ggplot(summary_data, aes(x = Generation, y = `NormalizedTotalCount`, group = Replicate, shape = Replicate)) + 
+  geom_point(aes(colour = Replicate), size = 3.5) +
+  geom_path(aes(colour = Replicate), linewidth = 1.5) +
+  scale_colour_manual(values = tresrep) +
+  scale_size(guide = "none") +  
+  xlim(0, 50) +  # Extend x-axis
+  theme_bw() +
+  theme(
+    panel.grid = element_blank(),
+    plot.margin = margin(10, 10, 10, 10, "pt"),
+    legend.position = c(0.08, 0.85),
+    legend.box.background = element_rect(fill = NULL, colour = NULL, size = 0)
+  ) +
+  labs(
+    x = "Generation",
+    y = "piRNA Reads (per million)",
+    title = "Normalized piRNA Counts Over Generations",
+    colour = "Replicate"
+  ) +
+  guides(color = guide_legend(title = NULL), shape = guide_legend(title = NULL))
+
+# Save the plot as PNG and SVG
+ggsave("figs/pele_pirnas_normalized.png", ppirnas, width = 6, height = 4, dpi = 400)
+ggsave("figs/pele_pirnas_normalized.svg", ppirnas, width = 6, height = 4)
+
+# Print the plot
+print(ppirnas)
+
+```
+
+We can also include the siRNAs alongside the piRNAs:
+
+```{R}
+# Load necessary libraries
+library(ggplot2)
+library(dplyr)
+
+# Color scheme for replicates
+tresrep <- c("firebrick", "skyblue3", "chartreuse4")
+
+# Sample data
+data <- read.table("/Volumes/Data/Projects/dmelR2_p-ele/small_RNA/PPI251_comp/all/dmel_pirna_comp_PPI251.txt",
+                   header = TRUE, sep = "\t")
+
+# Ensure Count and Tot columns are numeric
+data <- data %>%
+  mutate(Count = as.numeric(Count),
+         Tot = as.numeric(Tot))
+
+data <- data %>%
+  group_by(SampleID, Strand) %>%
+  # Calculate the maximum Tot value for each SampleID, Strand, and Class 'piRNA'
+  mutate(Tot = ifelse(Class == "piRNA", Tot, max(Tot[Class == "piRNA"], na.rm = TRUE))) %>%
+  # Replace the Tot values for rows where Tot is NA or "-" with the computed Tot values
+  mutate(Tot = ifelse(Tot == "-" | is.na(Tot), max(Tot, na.rm = TRUE), Tot)) %>%
+  ungroup()
+
+# Extract replicate and generation from SampleID
+data <- data %>%
+  mutate(
+    Replicate = gsub("dmel_R([0-9]+)_G[0-9]+_run[0-9]+_clean.sorted", "\\1", SampleID),
+    Generation = gsub("dmel_R[0-9]+_G([0-9]+)_run[0-9]+_clean.sorted", "\\1", SampleID),
+    Replicate = as.factor(Replicate),
+    Generation = as.numeric(Generation)
+  )
+
+# Filter data to include only piRNA and siRNA classes
+piRNA_data <- data %>% filter(Class == "piRNA")
+siRNA_data <- data %>% filter(Class == "siRNA")
+
+# Normalize piRNA and siRNA counts by the total number of piRNAs
+piRNA_data <- piRNA_data %>%
+  mutate(NormalizedCount = (Count / Tot) * 1e6, RNA_type = "piRNA")  # piRNAs normalized count per million piRNAs
+
+siRNA_data <- siRNA_data %>%
+  mutate(NormalizedCount = (Count / Tot) * 1e6, RNA_type = "siRNA")  # siRNAs normalized by piRNA totals
+
+# Combine piRNA and siRNA data for the combined plot
+combined_data <- bind_rows(piRNA_data, siRNA_data)
+
+# Summarize normalized counts by replicate, generation, and RNA type
+summary_data_piRNA <- piRNA_data %>%
+  group_by(Replicate, Generation) %>%
+  summarise(NormalizedTotalCount = sum(NormalizedCount), .groups = 'drop')
+
+summary_data_siRNA <- siRNA_data %>%
+  group_by(Replicate, Generation) %>%
+  summarise(NormalizedTotalCount = sum(NormalizedCount), .groups = 'drop')
+
+summary_data_combined <- combined_data %>%
+  group_by(Replicate, Generation, RNA_type) %>%
+  summarise(NormalizedTotalCount = sum(NormalizedCount), .groups = 'drop')
+
+# 1. Plot just piRNAs
+plot_piRNAs <- ggplot(summary_data_piRNA, aes(x = Generation, y = NormalizedTotalCount, group = Replicate, shape = Replicate)) + 
+  geom_point(aes(colour = Replicate), size = 3.5) +
+  geom_path(aes(colour = Replicate), linewidth = 1.5) +
+  scale_colour_manual(values = tresrep) +
+  xlim(0, 50) +
+  theme_bw() +
+  theme(
+    panel.grid = element_blank(),
+    plot.margin = margin(10, 10, 10, 10, "pt"),
+    legend.position = c(0.08, 0.85)
+  ) +
+  labs(
+    x = "Generation",
+    y = "piRNA Reads (per million)",
+    title = "Normalized piRNA Counts Over Generations",
+    colour = "Replicate"
+  )
+
+# 2. Plot just siRNAs
+plot_siRNAs <- ggplot(summary_data_siRNA, aes(x = Generation, y = NormalizedTotalCount, group = Replicate, shape = Replicate)) + 
+  geom_point(aes(colour = Replicate), size = 3.5) +
+  geom_path(aes(colour = Replicate), linewidth = 1.5) +
+  scale_colour_manual(values = tresrep) +
+  xlim(0, 50) +
+  theme_bw() +
+  theme(
+    panel.grid = element_blank(),
+    plot.margin = margin(10, 10, 10, 10, "pt"),
+    legend.position = c(0.08, 0.85)
+  ) +
+  labs(
+    x = "Generation",
+    y = "siRNA Reads (per million)",
+    title = "Normalized siRNA Counts Over Generations",
+    colour = "Replicate"
+  )
+
+# 3. Plot both piRNAs and siRNAs
+plot_combined <- ggplot(summary_data_combined, aes(x = Generation, y = NormalizedTotalCount, group = interaction(Replicate, RNA_type))) + 
+  geom_point(aes(colour = Replicate, shape = Replicate), size = 3.5) +
+  geom_path(aes(colour = Replicate, linetype = RNA_type), linewidth = 1.5) +
+  scale_colour_manual(values = tresrep) +
+  scale_linetype_manual(values = c("solid", "dashed")) +  # Solid for piRNA, dashed for siRNA
+  xlim(0, 50) +
+  theme_bw() +
+  theme(
+    panel.grid = element_blank(),
+    plot.margin = margin(10, 10, 10, 10, "pt"),
+    legend.position = c(0.08, 0.85)
+  ) +
+  labs(
+    x = "Generation",
+    y = "Normalized Reads (per million piRNAs)",
+    title = "Normalized piRNA and siRNA Counts Over Generations",
+    colour = "Replicate",
+    linetype = "RNA Type"
+  )
+
+# Save the plots
+ggsave("figs/pele_piRNAs_normalized.png", plot_piRNAs, width = 6, height = 4, dpi = 400)
+ggsave("figs/pele_siRNAs_normalized.png", plot_siRNAs, width = 6, height = 4, dpi = 400)
+ggsave("figs/pele_pirnas_sirnas_normalized_combined.png", plot_combined, width = 6, height = 4, dpi = 400)
+ggsave("figs/pele_pirnas_sirnas_normalized_combined.svg", plot_combined, width = 6, height = 4)
+
+# Print the plots
+print(plot_piRNAs)
+print(plot_siRNAs)
+print(plot_combined)
+
+plot_combined_log <- ggplot(summary_data_combined, aes(x = Generation, y = NormalizedTotalCount, group = interaction(Replicate, RNA_type))) + 
+  geom_point(aes(colour = Replicate, shape = Replicate), size = 3.5) +
+  geom_path(aes(colour = Replicate, linetype = RNA_type), linewidth = 1.5) +
+  scale_colour_manual(values = tresrep) +
+  scale_linetype_manual(values = c("solid", "dashed")) +  # Solid for piRNA, dashed for siRNA
+  scale_y_log10() +  # Log scale for y-axis
+  xlim(0, 50) +
+  theme_bw() +
+  theme(
+    panel.grid = element_blank(),
+    plot.margin = margin(10, 10, 10, 10, "pt"),
+    legend.position = c(0.08, 0.85)
+  ) +
+  labs(
+    x = "Generation",
+    y = "Log10(Normalized Reads per million piRNAs)",
+    title = "Log-scaled Normalized piRNA and siRNA Counts Over Generations",
+    colour = "Replicate",
+    linetype = "RNA Type"
+  )
+
+ggsave("figs/pele_pirnas_sirnas_normalized_combined_log.png", plot_combined_log, width = 6, height = 4, dpi = 400)
+ggsave("figs/pele_pirnas_sirnas_normalized_combined_log.svg", plot_combined_log, width = 6, height = 4)
+
+print(plot_combined_log)
+
+```
+
+Next, we wanted to look at the length distribution of the identified P-element mapping small RNAs:
+
+```{R}
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+
+# Load the data
+data <- read.table("/Volumes/Data/Projects/dmelR2_p-ele/small_RNA/PPI251_dist/all/dmel_pirna_dist_PPI251.txt",
+                   header = TRUE, sep = "\t")
+
+# Filter for only "piRNA" class
+data <- data %>%
+  filter(Class == "piRNA")
+
+# Extract base sample names without run information
+data <- data %>%
+  mutate(BaseSample = sub("_run[0-9]+_clean.sorted", "", SampleID))
+
+# Adjust counts for negative strand
+data$Count[data$Strand == "-"] <- -1 * data$Count[data$Strand == "-"]
+
+# Pivot longer for base counts
+data_long <- pivot_longer(data, cols = c(A, C, G, U, N), names_to = "Base", values_to = "Base_Count")
+data_long$Base_Count[data_long$Strand == "-"] <- -1 * data_long$Base_Count[data_long$Strand == "-"]
+
+# Extract replicate and generation information
+data_long <- data_long %>%
+  mutate(Replicate = sub(".*_R([0-9]+)_.*", "\\1", SampleID),
+         Generation = as.numeric(sub(".*_G([0-9]+)_.*", "\\1", SampleID)))
+
+# Calculate total counts for each strand
+strand_totals <- data_long %>%
+  group_by(Replicate, Generation, Strand) %>%
+  summarize(Total_Strand_Count = sum(abs(Base_Count)), .groups = "drop")
+
+# Join the total counts back to the data
+data_long <- data_long %>%
+  left_join(strand_totals, by = c("Replicate", "Generation", "Strand"))
+
+# Normalize Base_Counts by the total strand counts
+data_long <- data_long %>%
+  mutate(Normalized_Base_Count = Base_Count / Total_Strand_Count)
+
+# Plot the data
+lendist <- ggplot(data_long, aes(x = Length, y = Normalized_Base_Count, fill = Base)) +
+  geom_bar(stat = "identity", position = "stack", color = "black") +
+  scale_fill_manual(values = c(A = "#1f78b4", C = "#33a02c", G = "#e31a1c", U = "#ff7f00", N = "#6a3d9a")) + # Set custom colors for each base
+  geom_hline(yintercept = 0, color = "black") + # Add black line at Y = 0
+  facet_grid(Generation ~ Replicate, scales = "fixed") +
+  labs(title = "piRNA - Length Distribution",
+       x = "Length (nt)",
+       y = "Normalized Count",
+       fill = "Base") +
+  theme_minimal() +
+  theme(
+    panel.grid.major = element_blank(), # Remove major gridlines
+    panel.grid.minor = element_blank(), # Remove minor gridlines
+    panel.border = element_rect(color = "black", fill = NA, size = 1), # Add border around each plot
+    strip.background = element_rect(fill = "grey80", color = "black"), # Shaded grey box for facet titles
+    strip.text = element_text(size = 10),
+    panel.spacing = unit(0.5, "lines"), # Reduce space between plots
+    legend.position = "bottom", # Move legend to the bottom
+    legend.direction = "horizontal" # Make the legend horizontal
+  )
+
+# Save the plot
+ggsave("figs/dmel_PPI251_sRNA_lendist_normalized.png", plot = lendist, width = 16, height = 15, dpi = 400)
+ggsave("figs/dmel_PPI251_sRNA_lendist_normalized.svg", plot = lendist, width = 16, height = 15)
+
+print(lendist)
+
+```
+
+Next, we wanted to visualise the 5' ends of all piRNAs mapped to the P-element:
+
+```{R}
+library(ggplot2)
+library(dplyr)
+library(scales)
+library(tidyr)
+
+# Load the data
+file_path <- "/Volumes/Data/Projects/dmelR2_p-ele/small_RNA/pirna_dist/all/dmel_pirna_dist_PPI251.txt"
+data <- read.table(file_path, header = FALSE, sep = "\t", stringsAsFactors = FALSE)
+colnames(data) <- c("Sample", "TE", "strand", "pos", "count")
+
+# Extract base sample names without run information
+data <- data %>%
+  mutate(BaseSample = sub("_run[0-9]+_clean.sorted", "", Sample))
+
+# Identify samples with multiple runs
+sample_counts <- data %>%
+  group_by(BaseSample) %>%
+  summarize(RunCount = n_distinct(sub(".*(_run[0-9]+).*", "\\1", Sample)))
+
+# Separate samples with multiple runs and those with a single run
+samples_with_multiple_runs <- sample_counts %>%
+  filter(RunCount > 1) %>%
+  pull(BaseSample)
+
+samples_with_single_run <- sample_counts %>%
+  filter(RunCount == 1) %>%
+  pull(BaseSample)
+
+# Filter the data to keep only "run1" for samples with multiple runs
+data_filtered <- data %>%
+  filter((BaseSample %in% samples_with_multiple_runs & grepl("_run1_", Sample)) |
+           (BaseSample %in% samples_with_single_run))
+
+
+# Extract replicate and generation from the sid column
+data_filtered <- data_filtered %>%
+  mutate(
+    Replicate = sub(".*_(R[1-3])_.*", "\\1", Sample),
+    Generation = as.numeric(sub(".*_G([0-9]+).*", "\\1", Sample))
+  )
+
+#data_filtered <- data_filtered %>%
+  #filter(Generation == 1 | Generation == 45)
+
+# Adjust antisense values to be negative
+data_filtered <- data_filtered %>%
+  mutate(count = ifelse(strand == "-", -count, count))
+
+# Combine results from different runs of the same generation and replicate
+data_aggregated <- data_filtered %>%
+  group_by(Replicate, Generation, pos) %>%
+  summarise(count = sum(count), .groups = 'drop')
+
+# Determine maximum count for y-axis limits
+max_count <- max(abs(data_aggregated$count))
+
+# Plot
+p <- ggplot(data_aggregated) +
+  geom_segment(aes(x = pos, xend = pos, y = 0, yend = count), color = "dimgrey") +
+  geom_hline(yintercept = 0, color = "black") + # Add black line at Y = 0
+  scale_y_continuous(
+    #labels = scales::label_scientific(), # Use scientific notation for labels
+    #limits = c(-max_count * 1.15, max_count * 1.15)
+  ) +
+  labs(
+    title = "piRNA Distribution",
+    x = "position",
+    y = "counts (per million piRNAs)"
+  ) +
+  facet_grid(Generation ~ Replicate, scales = "fixed") + # Facet by Generation (rows) and Replicate (columns)
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_rect(color = "black", fill = NA, size = 1),
+    strip.background = element_rect(fill = "grey80", color = "black"),
+    strip.text.x = element_text(size = 10, angle = 90), # Replicate labels on top of each column
+    strip.text.y = element_text(size = 10), # Generation labels on the right of each row
+    panel.spacing = unit(0.5, "lines"),
+    axis.text.x = element_text(angle = 0, hjust = 0.5) # Rotate x-axis labels if needed
+  )
+
+ggsave("figs/dmel_PPI251_piRNA_dist_all.png", p, width = 12, height = 8, dpi = 600)
+ggsave("figs/dmel_PPI251_piRNA_dist_all.svg", p, width = 12, height = 8)
+
+print(p)
+```
+We next wanted to visualise the normalised output of the ping-pong signature of P-element mapping piRNAs:
+
+```{R}
+# Plot the data
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+
+# Load data
+merged_file_path <- "/Volumes/Data/Projects/dmelR2_p-ele/small_RNA/pingpong/minol_1/all/dmel_pingpong_PPI251.txt"
+phasing_data <- read.table(merged_file_path, header = TRUE, sep = "\t")
+colnames(phasing_data) <- c("Sample", "TE", "Strand", "Position", "Count", "Normalised", "Zscore", "A_count", "C_count", "G_count", "U_count", "N_count")
+
+# Extract base sample names without run information
+phasing_data <- phasing_data %>%
+  mutate(BaseSample = sub("_run[0-9]+_clean.sorted", "", Sample))
+
+# Filter data to only include sense strand (Strand == "+")
+phasing_data_sense <- phasing_data %>%
+  filter(Strand == "+")
+
+# Extract replicate and generation information
+phasing_data_sense <- phasing_data_sense %>%
+  mutate(Replicate = sub(".*_(R[1-3]).*", "\\1", Sample),
+         Generation = as.numeric(sub(".*_G([0-9]+).*", "\\1", Sample)))
+
+# Create a complete grid for plotting
+all_generations <- sort(unique(phasing_data_sense$Generation))
+replicates <- c("R1", "R2", "R3")
+additional_generations <- c(1, 6, 15, 21)
+all_generations <- sort(unique(c(all_generations, additional_generations)))
+complete_grid <- expand.grid(Replicate = replicates, Generation = all_generations)
+
+# Merge with the complete grid
+phasing_data_complete <- merge(complete_grid, phasing_data_sense, all.x = TRUE)
+
+# Set values to NA for missing data
+phasing_data_complete <- phasing_data_complete %>%
+  mutate(
+    Normalised = ifelse(is.na(Position), NA, Normalised),
+    Position = ifelse(is.na(Position), NA, Position)
+  )
+
+#phasing_data_complete <- phasing_data_complete %>%
+  #filter(Generation != 21 & Generation != 6)
+
+pp <- ggplot(phasing_data_complete, aes(x = Position, y = Normalised)) +
+  geom_bar(stat = "identity", position = "stack", color = "black", fill = "grey") +  # Set all bars to grey
+  ylim(0, 1.05) +
+  geom_hline(yintercept = 0, color = "black") + # Add black line at Y = 0
+  facet_grid(Generation ~ Replicate, scales = "fixed") +
+  labs(title = "PPI251 - Ping-pong Analysis (Sense Strand Only)",
+       x = "Position",
+       y = "Normalised Count") +
+  theme_minimal() +
+  theme(
+    panel.grid.major = element_blank(), # Remove major gridlines
+    panel.grid.minor = element_blank(), # Remove minor gridlines
+    panel.border = element_rect(color = "black", fill = NA, size = 1), # Add border around each plot
+    strip.background = element_rect(fill = "grey80", color = "black"), # Shaded grey box for facet titles
+    strip.text = element_text(size = 10),
+    panel.spacing = unit(0.5, "lines"), # Reduce space between plots
+    legend.position = "none" # Remove the legend
+  ) +
+  scale_y_continuous(expand = c(0, 0)) # Remove space, format 0 as integer
+
+# Save the plot
+ggsave("figs/dmel_PPI251_pingpong_sense_grey_all.png", plot = pp, width = 16, height = 15, dpi = 400)
+ggsave("figs/dmel_PPI251_pingpong_sense_grey_all.svg", plot = pp, width = 16, height = 15)
+
+print(pp)
+```
+
+To compare these signatures, and to display that each population has a working ping-pong cycle for other TEs, we also quantified the ping-pong signature for Blood.
+
+```{R}
+# Plot the data
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+
+# Load data
+merged_file_path <- "/Volumes/Data/Projects/dmelR2_p-ele/small_RNA/pingpong/OPUS/DM_combined_blood.txt"
+phasing_data <- read.table(merged_file_path, header = TRUE, sep = "\t")
+colnames(phasing_data) <- c("Sample", "TE", "Strand", "Position", "Count", "Normalised", "Zscore", "A_count", "C_count", "G_count", "U_count", "N_count")
+
+# Extract base sample names without run information
+phasing_data <- phasing_data %>%
+  mutate(BaseSample = sub("_run[0-9]+_clean.sorted", "", Sample))
+
+# Filter data to only include sense strand (Strand == "+")
+phasing_data_sense <- phasing_data %>%
+  filter(Strand == "+")
+
+# Extract replicate and generation information
+phasing_data_sense <- phasing_data_sense %>%
+  mutate(Replicate = sub(".*_(R[1-3]).*", "\\1", Sample),
+         Generation = as.numeric(sub(".*_G([0-9]+).*", "\\1", Sample)))
+
+# Create a complete grid for plotting
+all_generations <- sort(unique(phasing_data_sense$Generation))
+replicates <- c("R1", "R2", "R3")
+additional_generations <- c(1, 6, 15, 21)
+all_generations <- sort(unique(c(all_generations, additional_generations)))
+complete_grid <- expand.grid(Replicate = replicates, Generation = all_generations)
+
+# Merge with the complete grid
+phasing_data_complete <- merge(complete_grid, phasing_data_sense, all.x = TRUE)
+
+# Set values to NA for missing data
+phasing_data_complete <- phasing_data_complete %>%
+  mutate(
+    Normalised = ifelse(is.na(Position), NA, Normalised),
+    Position = ifelse(is.na(Position), NA, Position)
+  )
+
+pp <- ggplot(phasing_data_complete, aes(x = Position, y = Normalised)) +
+  geom_bar(stat = "identity", position = "stack", color = "black", fill = "grey") +  # Set all bars to grey
+  ylim(0, 1.05) +
+  geom_hline(yintercept = 0, color = "black") + # Add black line at Y = 0
+  facet_grid(Generation ~ Replicate, scales = "fixed") +
+  labs(title = "Blood - Ping-pong Analysis (Sense Strand Only)",
+       x = "Position",
+       y = "Normalised Count") +
+  theme_minimal() +
+  theme(
+    panel.grid.major = element_blank(), # Remove major gridlines
+    panel.grid.minor = element_blank(), # Remove minor gridlines
+    panel.border = element_rect(color = "black", fill = NA, size = 1), # Add border around each plot
+    strip.background = element_rect(fill = "grey80", color = "black"), # Shaded grey box for facet titles
+    strip.text = element_text(size = 10),
+    panel.spacing = unit(0.5, "lines"), # Reduce space between plots
+    legend.position = "none" # Remove the legend
+  ) +
+  scale_y_continuous(expand = c(0, 0)) # Remove space, format 0 as integer
+
+# Save the plot
+ggsave("figs/dmel_Blood_pingpong_sense_grey_all.png", plot = pp, width = 16, height = 15, dpi = 400)
+ggsave("figs/dmel_Blood_pingpong_sense_grey_all.svg", plot = pp, width = 16, height = 15)
+
+print(pp)
+```
+
+Finally, we wanted to assess the levels of phased production of piRNAs in our samples:
+
+```{R}
+# Load required libraries
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+
+# Read the data
+merged_file_path <- "/Volumes/Data/Projects/dmelR2_p-ele/small_RNA/phasing/all/dmel_phasing_ALL.txt"
+phasing_data <- read.table(merged_file_path, header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+colnames(phasing_data) <- c("Sample", "TE", "Position", "Strand", "Count", "Normalised", "Zscore", "A_count", "C_count", "G_count", "U_count", "N_count")
+
+# Extract base sample names without run information
+phasing_data <- phasing_data %>%
+  mutate(BaseSample = sub("_run[0-9]+_clean.sorted", "", Sample))
+
+# Calculate total base count and base proportions
+phasing_data <- phasing_data %>%
+  rowwise() %>%
+  mutate(Total_Base_Count = sum(A_count, C_count, G_count, U_count, N_count, na.rm = TRUE))
+
+phasing_data <- phasing_data %>%
+  mutate(A = A_count / Total_Base_Count,
+         C = C_count / Total_Base_Count,
+         G = G_count / Total_Base_Count,
+         U = U_count / Total_Base_Count,
+         N = N_count / Total_Base_Count)
+
+# Adjust counts based on strand
+phasing_data <- phasing_data %>%
+  mutate(Normalised = ifelse(Strand == "-", -Normalised, Normalised))
+
+# Set Normalised and Base_Count to 0 where Count < 100
+phasing_data <- phasing_data %>%
+  mutate(Normalised = ifelse(Count < 10, 0, Normalised))
+
+# Convert to long format
+phasing_data_long <- pivot_longer(phasing_data, cols = c("A", "C", "G", "U", "N"), names_to = "Base", values_to = "Base_Prop")
+
+# Calculate Base_Count after adjusting for Count < 100
+phasing_data_long <- phasing_data_long %>%
+  mutate(Base_Count = ifelse(Count < 10, 0, Normalised * Base_Prop))
+
+# Extract replicate and generation information
+phasing_data_long <- phasing_data_long %>%
+  mutate(Replicate = sub(".*_(R[1-3]).*", "\\1", Sample),
+         Generation = as.numeric(sub(".*_G([0-9]+).*", "\\1", Sample)))
+
+# Calculate the maximum absolute normalized count for symmetric y-axis limits
+max_normalised <- (max(abs(phasing_data_long$Base_Count), na.rm = TRUE) * 1.1)
+
+# Plotting
+ph <- ggplot(phasing_data_long, aes(x = Position, y = Normalised, fill = Base)) +
+  geom_bar(stat = "identity", position = "stack", color = "black", aes(y = Base_Count)) +
+  geom_hline(yintercept = 0, color = "black") + # Add black line at Y = 0
+  scale_fill_manual(values = c(A = "#1f78b4", C = "#33a02c", G = "#e31a1c", U = "#ff7f00", N = "#6a3d9a")) +
+  facet_grid(Generation ~ Replicate, scales = "fixed") +
+  labs(title = "PPI251 - Phasing Analysis",
+       x = "position",
+       y = "normalised count",
+       fill = "base") +
+  theme_minimal() +
+  theme(
+    panel.grid.major = element_blank(), # Remove major gridlines
+    panel.grid.minor = element_blank(), # Remove minor gridlines
+    panel.border = element_rect(color = "black", fill = NA, size = 1), # Add border around each plot
+    strip.background = element_rect(fill = "grey80", color = "black"), # Shaded grey box for facet titles
+    strip.text = element_text(size = 10),
+    panel.spacing = unit(0.4, "lines"), # Reduce space between plots
+    legend.position = "bottom", # Move legend to the bottom
+    legend.direction = "horizontal" # Make the legend horizontal
+  ) +
+  coord_cartesian(ylim = c(-max_normalised, max_normalised)) # Set symmetric y-axis limits
+
+# Save the plot
+ggsave("figs/dmel_PPI251_phasing_all_norm.png", plot = ph, width = 15, height = 15, dpi = 600)
+ggsave("figs/dmel_PPI251_phasing_all_norm.svg", plot = ph, width = 15, height = 15)
+
+print(ph)
+
+```
+
+No base count consideration:
+
+```{R}
+# Load required libraries
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+
+# Read the data
+merged_file_path <- "/Volumes/Data/Projects/dmelR2_p-ele/small_RNA/phasing/all/dmel_phasing_ALL.txt"
+phasing_data <- read.table(merged_file_path, header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+colnames(phasing_data) <- c("Sample", "TE", "Position", "Strand", "Count", "Normalised", "Zscore", "A_count", "C_count", "G_count", "U_count", "N_count")
+
+# Extract base sample names without run information
+phasing_data <- phasing_data %>%
+  mutate(BaseSample = sub("_run[0-9]+_clean.sorted", "", Sample))
+
+# Adjust counts based on strand
+phasing_data <- phasing_data %>%
+  mutate(Normalised = ifelse(Strand == "-", -Normalised, Normalised))
+
+# Set Normalised to 0 where Count < 10
+phasing_data <- phasing_data %>%
+  mutate(Normalised = ifelse(Count < 10, 0, Normalised))
+
+# Extract replicate and generation information
+phasing_data <- phasing_data %>%
+  mutate(Replicate = sub(".*_(R[1-3]).*", "\\1", Sample),
+         Generation = as.numeric(sub(".*_G([0-9]+).*", "\\1", Sample)))
+
+# Calculate the maximum absolute normalized count for symmetric y-axis limits
+max_normalised <- (max(abs(phasing_data$Normalised), na.rm = TRUE) * 1.1)
+
+# Plotting
+ph <- ggplot(phasing_data, aes(x = Position, y = Normalised)) +
+  geom_bar(stat = "identity", position = "stack", color = "black", fill = "grey50") + # Single grey bar
+  geom_hline(yintercept = 0, color = "black") + # Add black line at Y = 0
+  facet_grid(Generation ~ Replicate, scales = "fixed") +
+  labs(title = "PPI251 - Phasing Analysis",
+       x = "Position",
+       y = "Normalised Count") +
+  theme_minimal() +
+  theme(
+    panel.grid.major = element_blank(), # Remove major gridlines
+    panel.grid.minor = element_blank(), # Remove minor gridlines
+    panel.border = element_rect(color = "black", fill = NA, size = 1), # Add border around each plot
+    strip.background = element_rect(fill = "grey80", color = "black"), # Shaded grey box for facet titles
+    strip.text = element_text(size = 10),
+    panel.spacing = unit(0.4, "lines"), # Reduce space between plots
+    legend.position = "none" # Remove the legend
+  ) +
+  coord_cartesian(ylim = c(-max_normalised, max_normalised)) # Set symmetric y-axis limits
+
+# Save the plot
+ggsave("figs/dmel_PPI251_phasing_all_norm_grey.png", plot = ph, width = 15, height = 15, dpi = 600)
+ggsave("figs/dmel_PPI251_phasing_all_norm_grey.svg", plot = ph, width = 15, height = 15)
+
+print(ph)
+```

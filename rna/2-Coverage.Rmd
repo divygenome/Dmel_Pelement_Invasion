@@ -100,7 +100,7 @@ h<-read.table("/Volumes/Data/Projects/dmelR2_p-ele/rna/run2/splicing-expression/
 names(h)<-c("rep","time","tissue","strand","gene","pos","cov")
 
 {
-  h$time <- factor(h$time, levels=c("G6", "G15", "G21", "G30","G40"))
+  h$time <- factor(h$time, levels=c("G0", "G6", "G15", "G21", "G30", "G40", "G50", "G100"))
   
   s<-subset(h,strand=="se")
   as<-subset(h,strand=="ase")
@@ -128,7 +128,7 @@ h<-read.table("/Volumes/Data/Projects/dmelR2_p-ele/rna/run2/splicing-expression/
 names(h)<-c("rep","time","tissue","strand","gene","pos","cov")
 
 {
-  h$time <- factor(h$time, levels=c("G6", "G15", "G21", "G30","G40"))
+  h$time <- factor(h$time, levels=c("G0", "G6", "G15", "G21", "G30", "G40", "G50", "G100"))
   
   s<-subset(h,strand=="se")
   as<-subset(h,strand=="ase")
@@ -165,7 +165,7 @@ names(h)<-c("rep","time","tissue","strand","gene","pos","cov")
   target<-genes
 
   a<-subset(h,gene==target)
-  a$time <- factor(a$time, levels=c("G6", "G15", "G21", "G30","G40"))
+  a$time <- factor(a$time, levels=c("G0", "G6", "G15", "G21", "G30", "G40", "G50", "G100"))
   
   s<-subset(a,strand=="se")
   as<-subset(a,strand=="ase")
@@ -386,7 +386,7 @@ for (i in 1:num_rows) {
       short <- sc[gene_counter]
       
       a <- subset(h, gene == target)
-      a$time <- factor(a$time, levels = c("G6", "G15", "G21", "G30", "G40"))
+      a$time <- factor(a$time, levels = c("G0", "G6", "G15", "G21", "G30", "G40", "G50", "G100"))
       
       s <- subset(a, strand == "se")
       as <- subset(a, strand == "ase")
@@ -442,7 +442,7 @@ for (i in 1:num_rows) {
       short <- sc[gene_counter]
       
       a <- subset(h, gene == target)
-      a$time <- factor(a$time, levels = c("G6", "G15", "G21", "G30", "G40"))
+      a$time <- factor(a$time, levels = c("G0", "G6", "G15", "G21", "G30", "G40", "G50", "G100"))
       
       s <- subset(a, strand == "se")
       as <- subset(a, strand == "ase")
@@ -503,7 +503,7 @@ data <- read.table("/Volumes/Data/Projects/dmelR2_p-ele/rna/run2/map-bwamem/geno
 data <- data[-1, ]
 colnames(data) <- gsub(".sort.bam", "", colnames(data))
 colnames(data) <- gsub("dmel_", "", colnames(data))
-colnames(data)[grepl(".sort.bam", colnames(data))] <- gsub("dmel_(R[0-9]+G[0-9]+)_run2.*", "\\1", colnames(data)[grepl(".sort.bam", colnames(data))])
+colnames(data)[grepl(".sort.bam", colnames(data))] <- gsub("dmel_(R[0-9]+G[0-9]+)_run*", "\\1", colnames(data)[grepl(".sort.bam", colnames(data))])
 colnames(data) <- gsub("_run2", "", colnames(data))
 
 # Specify the gene IDs you want to visualize
@@ -513,7 +513,7 @@ gene_ids <- c("FBgn0263832", "FBgn0261266", "P-element")  # Replace with your de
 subset_data <- data[data$Geneid %in% gene_ids, ]
 
 # Reshape the dataframe from wide to long format
-long_data <- gather(subset_data, key = "Replicate_Generation", value = "Counts", R3G40:R3G30)
+long_data <- gather(subset_data, key = "Replicate_Generation", value = "Counts", R1G0:R3G100)
 
 # Extract the generation and replicate information from the Replicate_Generation column
 long_data$Generation <- gsub("R\\dG(\\d+)", "\\1", long_data$Replicate_Generation)

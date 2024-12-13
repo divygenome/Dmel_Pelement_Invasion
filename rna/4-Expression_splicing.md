@@ -1,7 +1,7 @@
 4 - Expression & splicing
 ================
 Matthew Beaumont
-2024-02-22
+2024-10-30
 
 ``` bash
 knitr::opts_chunk$set(echo = TRUE)
@@ -105,7 +105,7 @@ a<-subset(h,gene==target & tissue==ttissue)
 a$key<-paste0(a$rep,"_",a$time,"_",a$pos,"_",a$strand)
 
 
-a$time <- factor(a$time, levels=c("G6", "G15", "G21", "G30", "G40"))
+a$time <- factor(a$time, levels=c("G0", "G6", "G15", "G21", "G30", "G40", "G50", "G100"))
 s<-subset(a,strand=="se")
 as<-subset(a,strand=="ase")
 
@@ -113,7 +113,7 @@ spli<-read.table("/Volumes/Data/Projects/dmelR2_p-ele/rna/run2/splicing-expressi
 
 names(spli)<-c("rep","time","tissue","strand","gene","skey","start","end","rawcount","freq")
 aspli<-subset(spli,gene==target & freq>sminfreq & tissue==ttissue)
-aspli$time <- factor(aspli$time, levels=c("G6", "G15", "G21", "G30", "G40"))
+aspli$time <- factor(aspli$time, levels=c("G0", "G6", "G15", "G21", "G30", "G40", "G50", "G100"))
 aspli$rep<- as.factor(aspli$rep)
 aspli$start<-aspli$start-1 # position inaccuracy, graph is more appealing
 aspli$keystart<-paste0(aspli$rep,"_",aspli$time,"_",aspli$start,"_",aspli$strand)
@@ -126,21 +126,44 @@ aspli$size<-log(aspli$freq+1)
 a_s<-subset(aspli,strand=="se")
 a_as<-subset(aspli,strand=="ase")
 
+a_s$size_scaled <- a_s$size - 1
+a_as$size_scaled <- a_as$size -1 
+
 expr_spli_plot <- ggplot() +
   geom_polygon(data = s, mapping = aes(x = pos, y = cov), fill = 'grey', color = 'grey') +
   geom_polygon(data = as, aes(x = pos, y = -cov), fill = 'lightgrey', color = 'lightgrey') +
-  geom_curve(data = a_s, mapping = aes(x = start, y = cov.x, xend = end, yend = cov.y, linewidth = size), curvature = -0.2, ncp = 10, show.legend = FALSE) +
-  geom_curve(data = a_as, mapping = aes(x = start, y = -cov.x, xend = end, yend = -cov.y, linewidth = size), curvature = 0.2, ncp = 10, show.legend = FALSE) +
+  geom_curve(data = a_s, mapping = aes(x = start, y = cov.x, xend = end, yend = cov.y, linewidth = size_scaled), curvature = -0.15, ncp = 10, show.legend = FALSE) +
+  geom_curve(data = a_as, mapping = aes(x = start, y = -cov.x, xend = end, yend = -cov.y, linewidth = size_scaled), curvature = 0.15, ncp = 10, show.legend = FALSE) +
+  geom_hline(yintercept = 0, color = "black") + # Add black line at Y = 0
   facet_grid(time ~ rep) +
-  scale_size(range = c(0.2, 2)) +
+  scale_size(range = c(0.1, 1)) + # Adjust the range for line thickness
+  coord_cartesian(ylim = c(min(a$cov) -1, max(a$cov) + 1)) + # Adjust y-axis limits
   xlab("position") +
   ylab("expression [rpm]") +
-  theme(strip.text = element_text(size = 14, face = "bold")) 
+  theme(
+    panel.grid.major = element_blank(), # Remove major gridlines
+    panel.grid.minor = element_blank(), # Remove minor gridlines
+    panel.border = element_rect(color = "black", fill = NA, size = 1), # Add border around each plot
+    strip.background = element_rect(fill = "grey80", color = "black"), # Shaded grey box for facet titles
+    strip.text = element_text(size = 10),
+    panel.spacing = unit(0.4, "lines"), # Reduce space between plots
+    legend.position = "bottom", # Move legend to the bottom
+    legend.direction = "horizontal" # Make the legend horizontal
+  )
+```
 
+    ## Warning: The `size` argument of `element_rect()` is deprecated as of ggplot2 3.4.0.
+    ## ℹ Please use the `linewidth` argument instead.
+    ## This warning is displayed once every 8 hours.
+    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+    ## generated.
 
+``` r
+# Save plots
 ggsave("figs/expr_spli.svg", expr_spli_plot, width = 14, height = 8)
 ggsave("figs/expr_spli.png", expr_spli_plot, width = 14, height = 8, dpi = 600)
 
+# Display the plot
 knitr::include_graphics("figs/expr_spli.png")
 ```
 
@@ -203,9 +226,16 @@ library(RColorBrewer)
 theme_set(theme_bw())
 tresrep <- c("firebrick", "skyblue3", "chartreuse4")
 
-mrna_data <- read_delim("/Volumes/Data/Projects/dmelR2_p-ele/rna/run2/splicing-expression/raw_expression/all-expressionlevel/expr.forr", delim = "\t", col_names = FALSE, comment = "#", show_col_types = FALSE)
+# Read the dataset
+mrna_data <- read_delim("/Volumes/Data/Projects/dmelR2_p-ele/rna/run2/splicing-expression/raw_expression/all-expressionlevel/expr_fixed.forr", delim = "\t", col_names = FALSE, comment = "#", show_col_types = FALSE)
+
+# Set the column names as per your data
 names(mrna_data) <- c("replicate", "generation", "run", "gene", "rawse", "rawase", "genlen", "sense", "antisense", "total")
+
+# Filter the data for the specific gene
 mrna_data <- subset(mrna_data, gene == "PPI251")
+
+# Convert generation to numeric if necessary
 mrna_data$generation <- as.numeric(substring(mrna_data$generation, 2))
 
 # Add data point for gen 0 with expression level 0
@@ -215,42 +245,52 @@ zero_data <- data.frame(replicate = rep(c("R1", "R2", "R3"), each = 1),
                         stringsAsFactors = FALSE)
 mrna_data <- bind_rows(mrna_data, zero_data)
 
+# Define plot dimensions and resolution
 width <- 16
 height <- 12
 resolution <- 600
 
+# First plot
 mrna_1 <- ggplot(data = mrna_data, aes(linetype = replicate)) +
-  geom_line(data = mrna_data, aes(x = generation, y = sense, color = replicate), linewidth = 1) +
-  geom_point(data = mrna_data, aes(x = generation, y = sense, color = replicate)) +
+  geom_line(data = mrna_data, aes(x = generation, y = total, color = replicate), linewidth = 1) +
+  geom_point(data = mrna_data, aes(x = generation, y = total, color = replicate)) +
   theme(strip.text = element_blank(), 
         legend.position = c(0.1, 0.85),
         legend.box.background = element_rect(color = "black", fill = "transparent"),
         legend.title = element_blank()) + 
   ylab("expression [rpkm]") +
   scale_colour_manual(values = tresrep) +
-  xlim(0, 48) +
+  xlim(0, 105) +
   xlab("generation")
 
 ggsave("figs/P-ele_expression.png", plot = mrna_1, width = 10, height = 6, dpi = 600)
+```
 
+    ## Warning: Removed 3 rows containing missing values (`geom_line()`).
+
+    ## Warning: Removed 3 rows containing missing values (`geom_point()`).
+
+``` r
 knitr::include_graphics("figs/P-ele_expression.png")
 ```
 
 <img src="figs/P-ele_expression.png" width="6000" />
 
 ``` r
-mrna_2 <- ggplot(data = mrna_data, aes(x = generation, y = sense, group = replicate)) + 
-  geom_point(aes(colour = replicate), size = 3.5, shape = 18) +
-  geom_line(aes(colour = replicate), size = 1.5) +
+# Second plot
+mrna_2 <- ggplot(data = mrna_data, aes(x = generation, y = total, color = replicate, shape = replicate)) + 
+  geom_point(size = 3.5) +
+  geom_line(size = 1.5) +
   scale_colour_manual(values = tresrep) +
   scale_size(guide = "none") +  
   ylab("expression [rpkm]") +
-  xlim(0, 65) +
+  xlim(0, 105) +
   theme_bw() +
   theme(panel.grid = element_blank(), 
         plot.margin = margin(10, 10, 10, 10, "pt"),
-        legend.position = c(0.1, 0.8),
-        legend.box.background = element_rect(fill = NULL, colour = NULL, size = 0.5, linetype = NULL, color = NULL))
+        legend.position = c(0.08, 0.85),
+        legend.box.background = element_rect(fill = NULL, colour = NULL, size = 0, linetype = NULL, color = NULL)) +
+  guides(color = guide_legend(title = NULL), shape = guide_legend(title = NULL))
 ```
 
     ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
@@ -259,17 +299,24 @@ mrna_2 <- ggplot(data = mrna_data, aes(x = generation, y = sense, group = replic
     ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
     ## generated.
 
-    ## Warning: The `size` argument of `element_rect()` is deprecated as of ggplot2 3.4.0.
-    ## ℹ Please use the `linewidth` argument instead.
-    ## This warning is displayed once every 8 hours.
-    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-    ## generated.
-
 ``` r
-mrna_sl <- mrna_2 + guides(color = guide_legend(title = NULL))
+mrna_sl <- mrna_2 + guides(color = guide_legend(title = NULL), shape = guide_legend(title = NULL))
 
 ggsave("figs/P-ele_expression_2.png", plot = mrna_sl, width = 6, height = 4, dpi = 600)
+```
 
+    ## Warning: Removed 3 rows containing missing values (`geom_point()`).
+
+    ## Warning: Removed 3 rows containing missing values (`geom_line()`).
+
+``` r
+ggsave("figs/P-ele_expression_2.svg", plot = mrna_sl,  width = 6, height = 4)
+```
+
+    ## Warning: Removed 3 rows containing missing values (`geom_point()`).
+    ## Removed 3 rows containing missing values (`geom_line()`).
+
+``` r
 knitr::include_graphics("figs/P-ele_expression_2.png")
 ```
 
@@ -281,19 +328,19 @@ library(RColorBrewer)
 theme_set(theme_bw())
 custom_palette <- c("firebrick", "skyblue3", "chartreuse4")
 
-mrna_data <- read_delim("/Volumes/Data/Projects/dmelR2_p-ele/rna/run2/splicing-expression/raw_expression/all-expressionlevel/expr.forr", delim = "\t", col_names = FALSE, comment = "#", show_col_types = FALSE)
+mrna_data <- read_delim("/Volumes/Data/Projects/dmelR2_p-ele/rna/run2/splicing-expression/raw_expression/all-expressionlevel/expr_fixed.forr", delim = "\t", col_names = FALSE, comment = "#", show_col_types = FALSE)
 names(mrna_data) <- c("replicate", "generation", "run", "gene", "rawse", "rawase", "genlen", "sense", "antisense", "total")
 mrna_data <- subset(mrna_data, gene == "PPI251")
 mrna_data$generation <- as.numeric(substring(mrna_data$generation, 2))
 
+# Add data point for gen 0 with expression level 0
 zero_data <- data.frame(replicate = rep(c("R1", "R2", "R3"), each = 1),
                         generation = rep(0, 3),
                         sense = rep(0, 3),
-                        antisense = rep(0, 3),
                         stringsAsFactors = FALSE)
 mrna_data <- bind_rows(mrna_data, zero_data)
 
-width <- 16
+width <- 20
 height <- 12
 resolution <- 600
 
@@ -307,16 +354,29 @@ mrna_sa <- ggplot(data = mrna_data, aes(x = generation, y = value, color = repli
   scale_colour_manual(values = custom_palette) +
   scale_linetype_manual(values = c(Sense = 1, Antisense = 6), breaks = c("Sense", "Antisense")) + 
   ylab("expression [rpkm]") +
-  xlim(0, 65) +
+  xlim(0, 105) +
   theme_bw() +
   theme(panel.grid = element_blank(), 
         plot.margin = margin(10, 10, 10, 10, "pt"),
-        legend.position = c(0.12, 0.72),
+        legend.position = c(0.12, 0.728),
         legend.box.background = element_rect(fill = NULL, colour = NULL, size = 0, linetype = NULL, color = NULL)) +
   guides(color = guide_legend(title = NULL), linetype = guide_legend(title = NULL), shape = guide_legend(title = NULL))
 
 ggsave("figs/P-ele_expression_sa.png", plot = mrna_sa, width = 6, height = 4, dpi = 600)
+```
 
+    ## Warning: Removed 3 rows containing missing values (`geom_line()`).
+
+    ## Warning: Removed 3 rows containing missing values (`geom_point()`).
+
+``` r
+ggsave("figs/P-ele_expression_sa.svg", plot = mrna_sa, width = 6, height = 4)
+```
+
+    ## Warning: Removed 3 rows containing missing values (`geom_line()`).
+    ## Removed 3 rows containing missing values (`geom_point()`).
+
+``` r
 knitr::include_graphics("figs/P-ele_expression_sa.png")
 ```
 
@@ -333,72 +393,68 @@ library(RColorBrewer)
 theme_set(theme_bw())
 colrep3 <- c("firebrick", "skyblue3", "chartreuse4")
 
-# Annotation
-# PPI251    ensembl exon    153 442 .   +   .   gene_id "pele"; transcript_id "pele1";
-# PPI251    ensembl exon    501 1168    .   +   .   gene_id "pele"; transcript_id "pele1";
-# PPI251    ensembl exon    1222    1947    .   +   .   gene_id "pele"; transcript_id "pele1";
-# PPI251    ensembl exon    2138    2709    .   +   .   gene_id "pele"; transcript_id "pele1";
-
+# Read the data
 sp3 <- read.table("/Volumes/Data/Projects/dmelR2_p-ele/rna/run2/splicing-expression/splicing/spli.forr")
 
-# head
-# R1    G15 wf  se  PPI251  443-502 443 502 51  0.719474282680966
-# R1    G15 wf  se  PPI251  1169-1223   1169    1223    51  0.719474282680966
-
+# Define the column names
 names <- c("rep", "generation", "tissue", "strand", "gene", "skey", "start", "end", "rawcount", "freq")
 names(sp3) <- names
+
+# Filter the data
 sp3 <- subset(sp3, gene == "PPI251" & tissue == "wf" & strand == "se")
 sp3$generation <- as.numeric(substring(sp3$generation, 2))
-
 sp3 <- subset(sp3, skey == "1948-2139")  # delta23
-missingvalues <- data.frame(rep = c("R1", "R2", "R3"), generation = c(0, 0, 0), tissue = rep("wf", 3),
-                            strand = rep("se", 3), gene = rep("PPI251", 3), skey = rep("1948-2139", 3),
-                            start = rep(0, 3), end = rep(0, 3), rawcount = rep(0, 3), freq = rep(0, 3))
 
-sp3 <- rbind(sp3, missingvalues)
-
-# Add data point at gen 6 for R1 with splicing level 0
+# Add zero data points for missing values in dataset
 zero_data <- data.frame(rep = "R1", generation = 6, tissue = "wf", strand = "se", gene = "PPI251",
                         skey = "1948-2139", start = 0, end = 0, rawcount = 0, freq = 0)
 sp3 <- rbind(sp3, zero_data)
 
+zero_data_2 <- data.frame(rep = c("R1", "R2", "R3"), generation = 0, tissue = "wf", strand = "se", gene = "PPI251",
+                          skey = "1948-2139", start = 0, end = 0, rawcount = 0, freq = 0)
+sp3 <- rbind(sp3, zero_data_2)
+
+zero_data_3 <- data.frame(rep = c("R1", "R3"), generation = 100, tissue = "wf", strand = "se", gene = "PPI251",
+                          skey = "1948-2139", start = 0, end = 0, rawcount = 0, freq = 0)
+sp3 <- rbind(sp3, zero_data_3)
+
+# Ensure 'rep' is treated as a factor
+sp3$rep <- as.factor(sp3$rep)
+
+# Plot 1
 spli_3 <- ggplot(data = sp3, aes(linetype = rep)) +
   geom_line(data = sp3, aes(x = generation, y = freq, color = rep), linewidth = 1) +
   geom_point(data = sp3, aes(x = generation, y = freq, color = rep)) +
   theme(strip.text = element_blank(),
         legend.position = "none") +
-        #legend.position = c(0.1, 0.85),
-        #legend.box.background = element_rect(color = "black", fill = "transparent"),
-        #legend.title = element_blank()) +
   ylab("splicing level [srpm]") + 
   scale_colour_manual(values = colrep3) +
-  xlim(0, 48) + xlab("generation")
+  xlab("generation")
 
 ggsave("figs/IVS3.png", plot = spli_3, width = 5, height = 3, dpi = 600)
-
 knitr::include_graphics("figs/IVS3.png")
 ```
 
 <img src="figs/IVS3.png" width="3000" />
 
 ``` r
-spli_3_x <- ggplot(data = sp3, aes()) + 
-  geom_point(data = sp3, aes(x = generation, y = freq, color = rep), size = 3.5, shape = 18) +
-  geom_line(data = sp3, aes(x = generation, y = freq, color = rep), size = 1.5) +
+# Plot 2
+spli_3_x <- ggplot(data = sp3, aes(color = rep, shape = rep)) + 
+  geom_point(aes(x = generation, y = freq), size = 3.5) +
+  geom_line(aes(x = generation, y = freq), size = 1.5) +
   scale_colour_manual(values = colrep3) +
   scale_size(guide = "none") +  
   ylab("splicing level [srpm]") +
-  xlim(0, 65) +
   theme_bw() +
   theme(panel.grid = element_blank(), 
         plot.margin = margin(10, 10, 10, 10, "pt"),
-        legend.position = c(0.1, 0.8),
-        legend.box.background = element_rect(fill = NULL, colour = NULL, size = 0.5, linetype = NULL, color = NULL))
+        legend.position = c(0.08, 0.85),
+        legend.box.background = element_rect(fill = NULL, colour = NULL, size = 0, linetype = NULL, color = NULL)) +
+  guides(color = guide_legend(title = NULL), shape = guide_legend(title = NULL))
 
-spli_3_sl <- spli_3_x + guides(color = guide_legend(title = NULL))
+spli_3_sl <- spli_3_x + guides(color = guide_legend(title = NULL), shape = guide_legend(title = NULL))
 
 ggsave("figs/IVS3_sl.png", plot = spli_3_sl, width = 6, height = 4, dpi = 600)
-
 knitr::include_graphics("figs/IVS3_sl.png")
 ```
 
@@ -430,11 +486,10 @@ sp2<-subset(sp2,gene=="PPI251" & tissue=="wf" & strand=="se")
 sp2$generation<-as.numeric(substring(sp2$generation, 2))
 
 sp2<-subset(sp2,skey=="1169-1223")
-missingvalues=data.frame(rep=c("R1","R2","R3"),generation=c(0,0,0),tissue=rep("wf",3),
-                         strand=rep("se",3),gene=rep("PPI251",3),skey=rep("1169-1223",3),
-                         start=rep(0,3),end=rep(0,3),rawcount=rep(0,3),freq=rep(0,3))
 
-sp2<-rbind(sp2,missingvalues)
+zero_data <- data.frame(rep = c("R1", "R2", "R3"), generation = 0, tissue = "wf", strand = "se", gene = "PPI251",
+                          skey = "1169-1223", start = 0, end = 0, rawcount = 0, freq = 0)
+sp2 <- rbind(sp2, zero_data)
 
 spli_2 <- ggplot(data = sp2, aes(linetype = rep)) +
   geom_line(data = sp2, aes(x = generation, y = freq, color = rep), linewidth = 1) +
@@ -445,7 +500,8 @@ spli_2 <- ggplot(data = sp2, aes(linetype = rep)) +
         #legend.box.background = element_rect(color = "black", fill = "transparent"),
         #legend.title = element_blank()) +
   ylab("splicing level [srpm]") +
-  scale_colour_manual(values=colrep2)+xlim(0,48) +
+  scale_colour_manual(values=colrep2) + 
+  #xlim(0,48) +
   xlab("generation")
 
 ggsave("figs/IVS2.png", plot = spli_2, width = 5, height = 3, dpi = 600)
@@ -456,18 +512,18 @@ knitr::include_graphics("figs/IVS2.png")
 <img src="figs/IVS2.png" width="3000" />
 
 ``` r
-spli_2_x <- ggplot(data = sp2, aes()) + 
-  geom_point(data = sp2, aes(x = generation, y = freq, color = rep), size = 3.5, shape = 18) +
-  geom_line(data =sp2, aes(x = generation, y = freq, color = rep), size = 1.5) +
+spli_2_x <- ggplot(data = sp2, aes(color = rep, shape = rep)) + 
+  geom_point(aes(x = generation, y = freq), size = 3.5) +
+  geom_line(aes(x = generation, y = freq), size = 1.5) +
   scale_colour_manual(values = colrep3) +
   scale_size(guide = "none") +  
-  ylab("splicing level (srpm)") +
-  xlim(0, 65) +
+  ylab("splicing level [srpm]") +
   theme_bw() +
   theme(panel.grid = element_blank(), 
         plot.margin = margin(10, 10, 10, 10, "pt"),
-        legend.position = c(0.1, 0.8),
-        legend.box.background = element_rect(fill = NULL, colour = NULL, size = 0.5, linetype = NULL, color = NULL))
+        legend.position = c(0.08, 0.85),
+        legend.box.background = element_rect(fill = NULL, colour = NULL, size = 0, linetype = NULL, color = NULL)) +
+  guides(color = guide_legend(title = NULL), shape = guide_legend(title = NULL))
 
 spli_2_sl <- spli_2_x + guides(color = guide_legend(title = NULL))
 
@@ -504,11 +560,10 @@ sp1<-subset(sp1,gene=="PPI251" & tissue=="wf" & strand=="se")
 sp1$generation<-as.numeric(substring(sp1$generation, 2))
 
 sp1<-subset(sp1,skey=="443-502")
-missingvalues=data.frame(rep=c("R1","R2","R3"),generation=c(0,0,0),tissue=rep("wf",3),
-                        strand=rep("se",3),gene=rep("PPI251",3),skey=rep("443-502",3),
-                        start=rep(0,3),end=rep(0,3),rawcount=rep(0,3),freq=rep(0,3))
 
-sp1 <- rbind(sp1,missingvalues)
+zero_data <- data.frame(rep = c("R1", "R2", "R3"), generation = 0, tissue = "wf", strand = "se", gene = "PPI251",
+                          skey = "443-502", start = 0, end = 0, rawcount = 0, freq = 0)
+sp1 <- rbind(sp1, zero_data)
 
 spli_1 <- ggplot(data = sp1, aes(linetype = rep)) +
   geom_line(data = sp1, aes(x = generation, y = freq, color = rep), linewidth = 1) +
@@ -518,7 +573,8 @@ spli_1 <- ggplot(data = sp1, aes(linetype = rep)) +
         legend.box.background = element_rect(color = "black", fill = "transparent"),
         legend.title = element_blank()) +
   ylab("splicing level [srpm]") +
-  scale_colour_manual(values=colrep3)+xlim(0,48) +
+  scale_colour_manual(values=colrep3) + 
+  #xlim(0,48) +
   xlab("generation")
 
 ggsave("figs/IVS1.png", plot = spli_1, width = 5, height = 3, dpi = 600)
@@ -529,18 +585,18 @@ knitr::include_graphics("figs/IVS1.png")
 <img src="figs/IVS1.png" width="3000" />
 
 ``` r
-spli_1_x <- ggplot(data = sp1, aes()) + 
-  geom_point(data = sp1, aes(x = generation, y = freq, color = rep), size = 3.5, shape = 18) +
-  geom_line(data =sp1, aes(x = generation, y = freq, color = rep), size = 1.5) +
+spli_1_x <- ggplot(data = sp1, aes(color = rep, shape = rep)) + 
+  geom_point(aes(x = generation, y = freq), size = 3.5) +
+  geom_line(aes(x = generation, y = freq), size = 1.5) +
   scale_colour_manual(values = colrep3) +
   scale_size(guide = "none") +  
-  ylab("splicing level (srpm)") +
-  xlim(0, 65) +
+  ylab("splicing level [srpm]") +
   theme_bw() +
   theme(panel.grid = element_blank(), 
         plot.margin = margin(10, 10, 10, 10, "pt"),
-        legend.position = c(0.1, 0.8),
-        legend.box.background = element_rect(fill = NULL, colour = NULL, size = 0.5, linetype = NULL, color = NULL))
+        legend.position = c(0.08, 0.85),
+        legend.box.background = element_rect(fill = NULL, colour = NULL, size = 0, linetype = NULL, color = NULL)) +
+  guides(color = guide_legend(title = NULL), shape = guide_legend(title = NULL))
 
 spli_1_sl <- spli_1_x + guides(color = guide_legend(title = NULL))
 
@@ -562,9 +618,10 @@ spli_3_xs <- spli_3_sl + ggtitle("IVS3") +
 
 spli_comb <- cowplot::plot_grid(spli_1_xs, spli_2_xs, spli_3_xs, ncol = 3)
 
-ggsave("figs/spli_comb.png", plot = spli_comb, width = 18, height = 4, dpi = 600)
+ggsave("figs/spli_comb.png", plot = spli_comb, width = 21, height = 2, dpi = 600)
+ggsave("figs/spli_comb.svg", plot = spli_comb, width = 21, height = 2)
 
 knitr::include_graphics("figs/spli_comb.png")
 ```
 
-<img src="figs/spli_comb.png" width="10800" />
+<img src="figs/spli_comb.png" width="12600" />

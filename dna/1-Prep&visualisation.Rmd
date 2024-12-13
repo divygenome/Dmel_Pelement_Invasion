@@ -197,7 +197,7 @@ cd /Volumes/Data/Projects/DmelR2_P-ele/software/teminer-code-r10/results/mel/dev
 ls *fq.gz.*
 ```
 
-From the resulting .fq.gz.PPI251 files, we extracted and assembled the P-element copy number values into a single file, then removed the "G" from the generation coloumn to aid visualisation.
+From the resulting .fq.gz.PPI251 files, we extracted and assembled the P-element copy number values into a single file, then removed the "G" from the generation column to aid visualisation.
 
 ```{bash, eval=FALSE}
 
@@ -220,44 +220,41 @@ ls *pcopies*
 The copy number data was then visualised using ggplot2.
 
 ```{r}
-library (ggplot2)
-theme_set(theme_bw())
-tresrep<-c("firebrick", "skyblue3", "chartreuse4")
-  
-d = read.table("mel_pcopies_values.txt")
+# Load required libraries
+library(ggplot2)
 
-names(d)<-c ("replicate", "generation", "copy number")
+# Define colors for replicates
+tresrep <- c("firebrick", "skyblue3", "chartreuse4")
 
-print(d)
+# Read the data
+d <- read.table("mel_pcopies_values.txt")
+names(d) <- c("replicate", "generation", "copy number")
 
-pele_dna <- ggplot(d, aes(x = generation, y = `copy number`, group= replicate)) + 
-  geom_line(aes(color=replicate),linewidth=1) +
-  geom_point(aes(color=replicate)) +
-  ggtitle("P-element invasions in D. melanogaster") +
-  scale_colour_manual(values=tresrep) +
-  xlim(0, 65)
-
-ggsave("figs/pele_dna.png", pele_dna, width = 8, height = 5, dpi = 600)
-
-knitr::include_graphics("figs/pele_dna.png")
-
-pele_dna_2 <- ggplot(d, aes(x = generation, y = `copy number`, group = replicate)) + 
-  geom_point(aes(colour = replicate), size = 3.5, shape = 18) +
+pele_dna_2 <- ggplot(d, aes(x = generation, y = `copy number`, group = replicate, shape = replicate)) + 
+  geom_point(aes(colour = replicate), size = 3.5) +
   geom_path(aes(colour = replicate), linewidth = 1.5) +
   scale_colour_manual(values = tresrep) +
   scale_size(guide = "none") +  
-  xlim(0, 65) +
+  xlim(0, 67) +  # Extend x-axis to 100
   theme_bw() +
-  theme(panel.grid = element_blank(), 
-        plot.margin = margin(10, 10, 10, 10, "pt"),
-        legend.position = c(0.1, 0.8),
-        legend.box.background = element_rect(size = 0.5))
+  theme(
+    panel.grid = element_blank(),
+    plot.margin = margin(10, 10, 10, 10, "pt"),
+    legend.position = c(0.08, 0.85),
+    legend.box.background = element_rect(fill = NULL, colour = NULL, size = 0)
+  ) +
+  guides(color = guide_legend(title = NULL), shape = guide_legend(title = NULL))
 
+          
+# Add guides to the second plot
 pele_dna_sl <- pele_dna_2 + guides(color = guide_legend(title = NULL))
 
-ggsave("figs/pele_dna_sl.png", pele_dna_sl, width = 6, height = 4, dpi = 600)
+# Save the second plot as PNG and SVG
+ggsave("figs/pele_dna_l.png", pele_dna_sl, width = 6, height = 4, dpi = 400)
+ggsave("figs/pele_dna_l.svg", pele_dna_sl, width = 6, height = 4)
 
-knitr::include_graphics("figs/pele_dna_sl.png")
+# Include the second PNG in the report
+knitr::include_graphics("figs/pele_dna_l.png")
 
 ```
 
@@ -269,5 +266,460 @@ We also generated DeviaTE plots for each replicate for each measured generation 
 knitr::include_graphics("figs/pele_coverage.png")
 knitr::include_graphics("figs/pele_coverage_s.png")
 knitr::include_graphics("figs/pele_coverage_xs.png")
+
+```
+
+## Single flies:
+
+
+```{R}
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(ggsignif)
+library(broom)
+
+# Read data
+data <- read.table("/Volumes/Data/Tools/teminer-code/results/sf_mel/deviate/PPI251/sf_mel_pcopies.txt", header = FALSE)
+data$id <- rep(1:(nrow(data)/2), each = 2)
+
+# Prepare data
+paired_data <- data %>%
+  group_by(id) %>%
+  mutate(rep = rep(1:2, n() / 2)) %>%
+  spread(key = rep, value = V1)
+
+paired_data <- paired_data %>%
+  rename(group = `1`, value = `2`)
+
+# Convert the value column to numeric
+paired_data$value <- as.numeric(as.character(paired_data$value))
+
+# Ensure 'group' is a factor with the correct levels
+paired_data$group <- factor(paired_data$group, levels = c("R1", "R2", "R3"))
+
+# Perform t-tests and get p-values
+t_tests <- combn(levels(paired_data$group), 2, simplify = FALSE) %>%
+  lapply(function(groups) {
+    subset_data <- paired_data %>% filter(group %in% groups)
+    t_test <- t.test(value ~ group, data = subset_data)
+    tibble(
+      comparison = paste(groups, collapse = " vs "),
+      p_value = t_test$p.value
+    )
+  }) %>%
+  bind_rows()
+
+print(t_tests)
+
+# Define custom colors
+custom_colors <- c("R1" = "firebrick", "R2" = "skyblue3", "R3" = "chartreuse4")
+
+# Create plot
+plot <- ggplot(paired_data, aes(x = factor(id), y = value, fill = group)) +
+  geom_bar(stat = "identity", position = "dodge", color = "black") +
+  scale_fill_manual(values = custom_colors) +
+  labs(y = "copy Number", fill = "replicate") +
+  scale_x_discrete(expand = expansion(mult = c(0.04, 0.04))) +  # Add space on the X-axis
+  scale_y_continuous(expand = expansion(mult = c(0, 0.3))) +  # Add space on the Y-axis
+  theme_minimal() +
+  theme(
+    axis.title.x = element_blank(),  # Remove the X-axis label
+    axis.text.x = element_blank(),  # Remove the X-axis labels
+    panel.grid.major = element_blank(),  # Remove major gridlines
+    panel.grid.minor = element_blank(),  # Remove minor gridlines
+    panel.border = element_rect(colour = "black", fill = NA, size = 1),  # Add an outline
+    plot.background = element_rect(fill = "white", color = NA),  # Set plot background to white
+    panel.background = element_rect(fill = "white", color = NA)  # Set panel background to white
+  ) +
+  geom_signif(
+    comparisons = list(c("R1", "R2"), c("R2", "R3"), c("R1", "R3")),
+    map_signif_level = TRUE
+  ) +
+  geom_text(
+    data = t_tests,
+    aes(x = 1.5, y = max(paired_data$value) * 1.1, label = sprintf("p = %.3f", p_value)),
+    color = "black",
+    size = 4
+  )
+
+# Save the plot
+ggsave("figs/sf_copy_number.png", plot, width = 14, height = 6, dpi = 400)
+ggsave("figs/sf_copy_number.svg", plot, width = 14, height = 6)
+
+knitr::include_graphics("figs/sf_copy_number.png")
+
+
+```
+
+### SF Deviate - attempt
+
+```{R}
+# Load necessary libraries
+library(ggplot2)
+library(dplyr)
+library(tidyr) # For separating columns
+
+# Read the data from a space-delimited file
+data <- read.table(
+  "/Volumes/Data/Projects/dmelR2_p-ele/software/teminer-code-r10/results/mel/deviate/PPI251/dmel_all.PPI251",
+  header = FALSE, # No header in the file
+  sep = "", # Use default whitespace delimiter
+  stringsAsFactors = FALSE,
+  fill = TRUE # Fill incomplete lines
+)
+
+# Assign proper column names
+colnames(data) <- c("TEfam", "sample_id", "pos", "refbase", "A", "C", "G", "T",
+                    "cov", "phys_cov", "hq_cov", "snp", "refsnp", "int_del", "int_del_freq",
+                    "trunc_left", "trunc_right", "ins", "delet", "annotation")
+
+# Function to parse Generation
+parse_generation <- function(sample_id) {
+  if (grepl("naive", sample_id)) {
+    return(NA)
+  }
+  match <- regmatches(sample_id, regexec("_R[0-9]+G([0-9]+)", sample_id))
+  if (length(match[[1]]) >= 2) {
+    return(as.numeric(match[[1]][2]))
+  } else {
+    return(NA)
+  }
+}
+
+# Add Replicate and Generation columns
+data <- data %>%
+  mutate(
+    replicate = ifelse(grepl("naive", sample_id), "Naive", sub(".*_R([0-9]+)G.*", "\\1", sample_id)),
+    generation = sapply(sample_id, parse_generation)
+  )
+
+# Convert columns to appropriate types
+data <- data %>%
+  mutate(
+    pos = as.integer(pos),
+    refbase = as.character(refbase),
+    A = as.numeric(A),
+    C = as.numeric(C),
+    G = as.numeric(G),
+    T = as.numeric(T),
+    cov = as.numeric(cov),
+    phys_cov = as.numeric(phys_cov),
+    hq_cov = as.numeric(hq_cov),
+    snp = as.logical(snp),
+    refsnp = as.logical(refsnp),
+    int_del = as.character(int_del),
+    int_del_freq = as.numeric(gsub("[^0-9.]", "", int_del_freq)), # Clean and convert to numeric
+    trunc_left = as.character(trunc_left),
+    trunc_right = as.character(trunc_right),
+    ins = as.character(ins),
+    delet = as.character(delet),
+    annotation = as.character(annotation),
+    replicate = as.character(replicate),
+    generation = as.numeric(generation)
+  )
+
+print(head(data))
+
+# Function to determine the reference allele index
+ref_allele <- function(snp_index, refbases, length) {
+  if (refbases[snp_index] == 'A') {
+    return(snp_index)
+  } else if (refbases[snp_index] == 'C') {
+    return(snp_index + length)
+  } else if (refbases[snp_index] == 'G') {
+    return(snp_index + 2 * length)
+  } else {
+    return(snp_index + 3 * length)
+  }
+}
+
+# Function to create a long format data frame for SNPs
+snp_frame <- function(df) {
+  length <- nrow(df)
+  counts_col <- c(df$A, df$C, df$G, df$T)
+  pos_col <- rep(0:(length - 1), 4)
+  fam_col <- rep(df$TEfam, each = 4)
+  sample_col <- rep(df$sample_id, each = 4)
+  base_col <- rep(c('A', 'C', 'G', 'T'), length)
+  
+  snps <- df %>% filter(snp == TRUE) %>% pull(pos)
+  polys <- as.integer(snps)
+  
+  polys_ref_indices <- sapply(polys, function(idx) ref_allele(idx, df$refbase, length))
+  polys_ref_indices_sorted <- sort(polys_ref_indices)
+  
+  base_col[polys_ref_indices_sorted + 1] <- 'X'  # Adjust for 1-based indexing
+  
+  # Check lengths of columns
+  print(length(fam_col))
+  print(length(sample_col))
+  print(length(base_col))
+  print(length(pos_col))
+  print(length(counts_col))
+  
+  lf <- data.frame(
+    fam_col = fam_col,
+    sample_col = sample_col,
+    base_col = base_col,
+    pos_col = pos_col,
+    counts_col = counts_col,
+    Generation = df$generation[1],  # Use correct column name
+    Replicate = df$replicate[1]    # Use correct column name
+  )
+  
+  snps_data <- lf %>% filter(pos_col %in% polys)
+  snps_noref <- snps_data %>% filter(base_col != 'X')
+  snps_noref$base_col <- factor(snps_noref$base_col, levels = c('A', 'C', 'G', 'T'))
+  
+  return(snps_noref)
+}
+
+# Process the data frame for visualization
+snp_f <- snp_frame(data)
+
+# Prepare data for coverage plots
+pg <- data %>%
+  group_by(sample_id, generation, replicate) %>%
+  do({
+    df <- .
+    data.frame(
+      px = c(df$pos, rev(df$pos)),
+      py = c(df$cov, rep(0, length(df$cov))),
+      sample_id = df$sample_id[1],
+      generation = df$generation[1],
+      replicate = df$replicate[1]
+    )
+  }) %>%
+  ungroup()
+
+pg_hq <- data %>%
+  group_by(sample_id, generation, replicate) %>%
+  do({
+    df <- .
+    data.frame(
+      px = c(df$pos, rev(df$pos)),
+      py = c(df$hq_cov, rep(0, length(df$hq_cov))),
+      sample_id = df$sample_id[1],
+      generation = df$generation[1],
+      replicate = df$replicate[1]
+    )
+  }) %>%
+  ungroup()
+
+base_colors <- c('#1b9e77', '#d95f02', '#7570b3', '#e6ab02')
+
+# Plot the data with facet_grid by replicate and generation
+plot <- ggplot() +
+  geom_polygon(data = pg, aes(x = px, y = py, fill = sample_id), color = 'lightgrey') +
+  geom_polygon(data = pg_hq, aes(x = px, y = py, fill = sample_id), color = 'grey') +
+  geom_bar(data = snp_f, aes(x = pos_col, y = counts_col, fill = base_col), stat = 'identity', width = 1) +
+  scale_fill_manual(values = base_colors) +  # Define your colors for SNP bases
+  labs(
+    x = "Position",
+    y = "Coverage"
+  ) +
+  facet_grid(generation ~ replicate, scales = "fixed", switch = "y", space = "free_y") +
+  theme_minimal() +
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_rect(color = "black", fill = NA, size = 1),
+    strip.background = element_rect(fill = "grey80", color = "black"),
+    strip.text.y = element_text(size = 10, angle = 0),
+    strip.text.x = element_text(size = 10),
+    strip.placement = "outside",
+    panel.spacing = unit(0.4, "lines"),
+    legend.position = "bottom",
+    legend.direction = "horizontal"
+  )
+
+# Save plots
+ggsave("figs/dmel_deviate.png", plot, width = 6, height = 10, dpi = 200)
+ggsave("figs/dmel_deviate.svg", plot, width = 6, height = 10)
+
+# Print plots
+print(plot)
+
+```
+
+
+
+```{R}
+library(ggplot2)
+library(dplyr)
+library(readr)
+library(tidyr)
+library(RColorBrewer)
+
+# Read the data from a space-delimited file
+data <- read.table(
+  "/Volumes/Data/Projects/dmelR2_p-ele/software/teminer-code-r10/results/mel/deviate/PPI251/dmel_all.PPI251",
+  header = FALSE, # No header in the file
+  sep = "", # Use default whitespace delimiter
+  stringsAsFactors = FALSE,
+  fill = TRUE # Fill incomplete lines
+)
+
+# Assign proper column names
+colnames(data) <- c("TEfam", "sample_id", "pos", "refbase", "A", "C", "G", "T",
+                    "cov", "phys_cov", "hq_cov", "snp", "refsnp", "int_del", "int_del_freq",
+                    "trunc_left", "trunc_right", "ins", "delet", "annotation")
+
+# Function to parse Generation
+parse_generation <- function(sample_id) {
+  if (grepl("naive", sample_id)) {
+    return(NA)
+  }
+  match <- regmatches(sample_id, regexec("_R[0-9]+G([0-9]+)", sample_id))
+  if (length(match[[1]]) >= 2) {
+    return(as.numeric(match[[1]][2]))
+  } else {
+    return(NA)
+  }
+}
+
+# Add Replicate and Generation columns
+data <- data %>%
+  mutate(
+    Replicate = ifelse(grepl("naive", sample_id), "Naive", sub(".*_R([0-9]+)G.*", "\\1", sample_id)),
+    Generation = sapply(sample_id, parse_generation)
+  )
+
+# Convert columns to appropriate types
+frame <- data %>%
+  mutate(
+    pos = as.integer(pos),
+    refbase = as.character(refbase),
+    A = as.numeric(A),
+    C = as.numeric(C),
+    G = as.numeric(G),
+    T = as.numeric(T),
+    cov = as.numeric(cov),
+    phys_cov = as.numeric(phys_cov),
+    hq_cov = as.numeric(hq_cov),
+    snp = as.logical(snp),
+    refsnp = as.logical(refsnp),
+    int_del = as.character(int_del),
+    int_del_freq = as.numeric(int_del_freq),
+    trunc_left = as.character(trunc_left),
+    trunc_right = as.character(trunc_right),
+    ins = as.character(ins),
+    delet = as.character(delet),
+    annotation = as.character(annotation)
+  )
+
+# Function to determine the reference allele index
+ref_allele <- function(snp_index, refbases, length) {
+  if (refbases[snp_index] == 'A') {
+    return(snp_index)
+  } else if (refbases[snp_index] == 'C') {
+    return(snp_index + length)
+  } else if (refbases[snp_index] == 'G') {
+    return(snp_index + 2 * length)
+  } else {
+    return(snp_index + 3 * length)
+  }
+}
+
+# Function to create a long format data frame for SNPs
+snp_frame <- function(df) {
+  length <- nrow(df)
+  counts_col <- c(df$A, df$C, df$G, df$T)
+  pos_col <- rep(0:(length - 1), 4)
+  fam_col <- rep(df$TEfam, each = 4)
+  sample_col <- rep(df$sample_id, each = 4)
+  base_col <- rep(c('A', 'C', 'G', 'T'), length)
+  
+  snps <- df %>% filter(snp == TRUE) %>% pull(pos)
+  polys <- as.integer(snps)
+  
+  polys_ref_indices <- sapply(polys, function(idx) ref_allele(idx, df$refbase, length))
+  polys_ref_indices_sorted <- sort(polys_ref_indices)
+  
+  base_col[polys_ref_indices_sorted + 1] <- 'X'  # Adjust for 1-based indexing
+  
+  lf <- data.frame(
+    fam_col = fam_col,
+    sample_col = sample_col,
+    base_col = base_col,
+    pos_col = pos_col,
+    counts_col = counts_col,
+    Generation = df$Generation[1],  # Add Generation here
+    Replicate = df$Replicate[1]    # Add Replicate here
+  )
+  
+  snps_data <- lf %>% filter(pos_col %in% polys)
+  snps_noref <- snps_data %>% filter(base_col != 'X')
+  snps_noref$base_col <- factor(snps_noref$base_col, levels = c('A', 'C', 'G', 'T'))
+  
+  return(snps_noref)
+}
+
+# Process the data frame for visualization
+snp_f <- snp_frame(frame)
+
+# Prepare data for coverage plots
+pg <- frame %>%
+  group_by(sample_id, Generation, Replicate) %>%
+  do({
+    df <- .
+    data.frame(
+      px = c(df$pos, rev(df$pos)),
+      py = c(df$cov, rep(0, length(df$cov))),
+      sample_id = df$sample_id[1],
+      Generation = df$Generation[1],
+      Replicate = df$Replicate[1]
+    )
+  }) %>%
+  ungroup()
+
+pg_hq <- frame %>%
+  group_by(sample_id, Generation, Replicate) %>%
+  do({
+    df <- .
+    data.frame(
+      px = c(df$pos, rev(df$pos)),
+      py = c(df$hq_cov, rep(0, length(df$hq_cov))),
+      sample_id = df$sample_id[1],
+      Generation = df$Generation[1],
+      Replicate = df$Replicate[1]
+    )
+  }) %>%
+  ungroup()
+
+# Define color scheme for the bases using RColorBrewer to generate colors
+base_colors <- brewer.pal(n = 4, name = "Set1")
+
+# Create the base plot with faceting
+baseplot <- ggplot() +
+  geom_polygon(data = pg, aes(x = px, y = py, fill = sample_id), color = 'lightgrey') +
+  geom_polygon(data = pg_hq, aes(x = px, y = py, fill = sample_id), color = 'grey') +
+  geom_bar(data = snp_f, aes(x = pos_col, y = counts_col, fill = base_col), stat = 'identity', width = 1) +
+  labs(fill = '') +
+  ylab("coverage") +
+  xlab("position") +
+  scale_fill_manual(values = base_colors) +
+  facet_grid(Generation ~ Replicate, scales = "fixed", switch = "y", space = "free_y") +
+  theme_minimal() +
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_rect(color = "black", fill = NA, size = 1),
+    strip.background = element_rect(fill = "grey80", color = "black"),
+    strip.text.y = element_text(size = 10, angle = 0),
+    strip.text.x = element_text(size = 10), 
+    strip.placement = "outside",
+    panel.spacing = unit(0.4, "lines"),
+    legend.position = "bottom",
+    legend.direction = "horizontal"
+  ) +
+  theme(strip.text.y.right = element_text(angle = 0))
+
+# Save the plot as a PNG file
+ggsave("figs/dmel_deviate.png", baseplot, width = 20, height = 15, dpi = 400)
+
+# Print the plot
+print(baseplot)
 
 ```
