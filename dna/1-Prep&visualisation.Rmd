@@ -355,371 +355,214 @@ knitr::include_graphics("figs/sf_copy_number.png")
 ### SF Deviate - attempt
 
 ```{R}
-# Load necessary libraries
-library(ggplot2)
 library(dplyr)
-library(tidyr) # For separating columns
+library(tidyr)
+library(ggplot2)
 
-# Read the data from a space-delimited file
-data <- read.table(
-  "/Volumes/Data/Projects/dmelR2_p-ele/software/teminer-code-r10/results/mel/deviate/PPI251/dmel_all.PPI251",
-  header = FALSE, # No header in the file
-  sep = "", # Use default whitespace delimiter
-  stringsAsFactors = FALSE,
-  fill = TRUE # Fill incomplete lines
+# Define column names
+column_names <- c(
+  "TEfam", "sample_id", "pos", "refbase", "A", "C", "G", "T", "cov", "phys_cov", 
+  "hq_cov", "snp", "refsnp", "int_del", "int_del_freq", "trunc_left", "trunc_right", 
+  "ins", "delet", "annotation"
 )
 
-# Assign proper column names
-colnames(data) <- c("TEfam", "sample_id", "pos", "refbase", "A", "C", "G", "T",
-                    "cov", "phys_cov", "hq_cov", "snp", "refsnp", "int_del", "int_del_freq",
-                    "trunc_left", "trunc_right", "ins", "delet", "annotation")
+# Load data
+data <- read.table(
+  "/Volumes/Data/Tools/teminer-code/results/sf_mel/deviate/PPI251/all_sf_merged.PPI251",
+  header = FALSE, 
+  sep = " ", 
+  stringsAsFactors = FALSE, 
+  col.names = column_names, 
+  fill = TRUE,
+  comment.char = "#" # Ignore lines starting with '#'
+)
 
-# Function to parse Generation
-parse_generation <- function(sample_id) {
-  if (grepl("naive", sample_id)) {
-    return(NA)
-  }
-  match <- regmatches(sample_id, regexec("_R[0-9]+G([0-9]+)", sample_id))
-  if (length(match[[1]]) >= 2) {
-    return(as.numeric(match[[1]][2]))
-  } else {
-    return(NA)
-  }
-}
-
-# Add Replicate and Generation columns
+# Add sample_name column
 data <- data %>%
-  mutate(
-    replicate = ifelse(grepl("naive", sample_id), "Naive", sub(".*_R([0-9]+)G.*", "\\1", sample_id)),
-    generation = sapply(sample_id, parse_generation)
-  )
+  mutate(sample_name = gsub(".*/(.*)\\.allte\\.sort\\.bam", "\\1", sample_id))
 
-# Convert columns to appropriate types
-data <- data %>%
-  mutate(
-    pos = as.integer(pos),
-    refbase = as.character(refbase),
-    A = as.numeric(A),
-    C = as.numeric(C),
-    G = as.numeric(G),
-    T = as.numeric(T),
-    cov = as.numeric(cov),
-    phys_cov = as.numeric(phys_cov),
-    hq_cov = as.numeric(hq_cov),
-    snp = as.logical(snp),
-    refsnp = as.logical(refsnp),
-    int_del = as.character(int_del),
-    int_del_freq = as.numeric(gsub("[^0-9.]", "", int_del_freq)), # Clean and convert to numeric
-    trunc_left = as.character(trunc_left),
-    trunc_right = as.character(trunc_right),
-    ins = as.character(ins),
-    delet = as.character(delet),
-    annotation = as.character(annotation),
-    replicate = as.character(replicate),
-    generation = as.numeric(generation)
-  )
+# Filter the data by replicate (R1, R2, R3)
+data_r1 <- data %>%
+  filter(grepl("R1", sample_name))
 
-print(head(data))
+data_r2 <- data %>%
+  filter(grepl("R2", sample_name))
 
-# Function to determine the reference allele index
-ref_allele <- function(snp_index, refbases, length) {
-  if (refbases[snp_index] == 'A') {
-    return(snp_index)
-  } else if (refbases[snp_index] == 'C') {
-    return(snp_index + length)
-  } else if (refbases[snp_index] == 'G') {
-    return(snp_index + 2 * length)
-  } else {
-    return(snp_index + 3 * length)
-  }
+data_r3 <- data %>%
+  filter(grepl("R3", sample_name))
+
+# Combine datasets by replicate (R1, R2, R3)
+combined_data <- bind_rows(
+  data_r1 %>% mutate(replicate = "R1"),
+  data_r2 %>% mutate(replicate = "R2"),
+  data_r3 %>% mutate(replicate = "R3")
+)
+
+# Add truncation column and remove extreme positions
+combined_data <- combined_data %>%
+  mutate(truncation = case_when(
+    !is.na(trunc_left) ~ "trunc_left",
+    !is.na(trunc_right) ~ "trunc_right",
+    TRUE ~ NA_character_
+  )) %>%
+  filter(!(pos == min(pos) | pos == max(pos)))
+
+# Identify truncation pairs
+truncation_pairs <- combined_data %>%
+  filter(!is.na(truncation)) %>%
+  group_by(TEfam, replicate) %>%
+  summarise(
+    trunc_pairs = list({
+      # Separate truncation points
+      left_truncs <- pos[truncation == "trunc_left"]
+      right_truncs <- pos[truncation == "trunc_right"]
+      
+      # Ensure balanced pairing
+      num_pairs <- min(length(left_truncs), length(right_truncs))
+      tibble(
+        trunc_start = left_truncs[1:num_pairs],
+        trunc_end = right_truncs[1:num_pairs]
+      )
+    }),
+    .groups = "drop"
+  ) %>%
+  unnest(trunc_pairs)
+
+if (nrow(merged_truncation_pairs) == 0) {
+  message("No truncation pairs found for some replicates.")
 }
 
-# Function to create a long format data frame for SNPs
-snp_frame <- function(df) {
-  length <- nrow(df)
-  counts_col <- c(df$A, df$C, df$G, df$T)
-  pos_col <- rep(0:(length - 1), 4)
-  fam_col <- rep(df$TEfam, each = 4)
-  sample_col <- rep(df$sample_id, each = 4)
-  base_col <- rep(c('A', 'C', 'G', 'T'), length)
-  
-  snps <- df %>% filter(snp == TRUE) %>% pull(pos)
-  polys <- as.integer(snps)
-  
-  polys_ref_indices <- sapply(polys, function(idx) ref_allele(idx, df$refbase, length))
-  polys_ref_indices_sorted <- sort(polys_ref_indices)
-  
-  base_col[polys_ref_indices_sorted + 1] <- 'X'  # Adjust for 1-based indexing
-  
-  # Check lengths of columns
-  print(length(fam_col))
-  print(length(sample_col))
-  print(length(base_col))
-  print(length(pos_col))
-  print(length(counts_col))
-  
-  lf <- data.frame(
-    fam_col = fam_col,
-    sample_col = sample_col,
-    base_col = base_col,
-    pos_col = pos_col,
-    counts_col = counts_col,
-    Generation = df$generation[1],  # Use correct column name
-    Replicate = df$replicate[1]    # Use correct column name
+# Sort truncation pairs by trunc_start position
+truncation_pairs <- truncation_pairs %>%
+  arrange(trunc_start)
+
+
+merged_truncation_pairs <- merged_truncation_pairs %>%
+  mutate(
+    trunc_start = pmin(trunc_s, trunc_e),
+    trunc_end = pmax(trunc_s, trunc_e)
   )
-  
-  snps_data <- lf %>% filter(pos_col %in% polys)
-  snps_noref <- snps_data %>% filter(base_col != 'X')
-  snps_noref$base_col <- factor(snps_noref$base_col, levels = c('A', 'C', 'G', 'T'))
-  
-  return(snps_noref)
-}
 
-# Process the data frame for visualization
-snp_f <- snp_frame(data)
-
-# Prepare data for coverage plots
-pg <- data %>%
-  group_by(sample_id, generation, replicate) %>%
-  do({
-    df <- .
-    data.frame(
-      px = c(df$pos, rev(df$pos)),
-      py = c(df$cov, rep(0, length(df$cov))),
-      sample_id = df$sample_id[1],
-      generation = df$generation[1],
-      replicate = df$replicate[1]
-    )
-  }) %>%
-  ungroup()
-
-pg_hq <- data %>%
-  group_by(sample_id, generation, replicate) %>%
-  do({
-    df <- .
-    data.frame(
-      px = c(df$pos, rev(df$pos)),
-      py = c(df$hq_cov, rep(0, length(df$hq_cov))),
-      sample_id = df$sample_id[1],
-      generation = df$generation[1],
-      replicate = df$replicate[1]
-    )
-  }) %>%
-  ungroup()
-
-base_colors <- c('#1b9e77', '#d95f02', '#7570b3', '#e6ab02')
-
-# Plot the data with facet_grid by replicate and generation
-plot <- ggplot() +
-  geom_polygon(data = pg, aes(x = px, y = py, fill = sample_id), color = 'lightgrey') +
-  geom_polygon(data = pg_hq, aes(x = px, y = py, fill = sample_id), color = 'grey') +
-  geom_bar(data = snp_f, aes(x = pos_col, y = counts_col, fill = base_col), stat = 'identity', width = 1) +
-  scale_fill_manual(values = base_colors) +  # Define your colors for SNP bases
-  labs(
-    x = "Position",
-    y = "Coverage"
+### Visualization ###
+plot <- ggplot(combined_data, aes(x = pos, y = hq_cov)) +
+  geom_line(size = 1, color = "black") +
+  # Shade merged truncation windows
+  geom_rect(
+    data = merged_truncation_pairs,
+    aes(
+      xmin = trunc_start, 
+      xmax = trunc_end, 
+      ymin = -Inf, 
+      ymax = Inf
+    ),
+    fill = "blue", 
+    alpha = 0.1,
+    inherit.aes = FALSE
   ) +
-  facet_grid(generation ~ replicate, scales = "fixed", switch = "y", space = "free_y") +
+  labs(
+    x = "Position", 
+    y = "High-Quality Coverage", 
+    shape = "Truncation"
+  ) +
+  facet_wrap(~ replicate, scales = "fixed") + # Set the same y-axis for all facets
   theme_minimal() +
   theme(
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    panel.border = element_rect(color = "black", fill = NA, size = 1),
-    strip.background = element_rect(fill = "grey80", color = "black"),
-    strip.text.y = element_text(size = 10, angle = 0),
-    strip.text.x = element_text(size = 10),
-    strip.placement = "outside",
-    panel.spacing = unit(0.4, "lines"),
-    legend.position = "bottom",
-    legend.direction = "horizontal"
+    panel.grid.major = element_blank(), # Remove major gridlines
+    panel.grid.minor = element_blank(), # Remove minor gridlines
+    panel.border = element_rect(color = "black", fill = NA, size = 1), # Add border around each plot
+    strip.background = element_rect(fill = "grey80", color = "black"), # Shaded grey box for facet titles
+    strip.text = element_text(size = 10),
+    panel.spacing = unit(0.4, "lines"), # Reduce space between plots
+    legend.position = "bottom", # Move legend to the bottom
+    legend.direction = "horizontal" # Make the legend horizontal
   )
 
-# Save plots
-ggsave("figs/dmel_deviate.png", plot, width = 6, height = 10, dpi = 200)
-ggsave("figs/dmel_deviate.svg", plot, width = 6, height = 10)
+# Save plot
+ggsave("figs/dmel_deviate.png", plot, width = 26, height = 5, dpi = 400)
+ggsave("figs/dmel_deviate.svg", plot, width = 26, height = 5)
 
-# Print plots
+# Display plot
 print(plot)
+
+### Coverage Calculation ###
+
+combined_data_with_truncs <- combined_data %>%
+  left_join(merged_truncation_pairs, by = "replicate") %>%
+  mutate(
+    # Mark positions that are within the truncation window
+    in_trunc_window = pos >= trunc_start & pos <= trunc_end
+  ) 
+
+# Rename 'TEfam.x' to 'TEfam' explicitly
+combined_data_with_truncs <- combined_data_with_truncs %>%
+  rename(TEfam = TEfam.x)
+
+# Filter out rows that are not within any truncation window
+combined_data_in_truncs <- combined_data_with_truncs %>%
+  filter(in_trunc_window)
+
+# Calculate the average hq_cov for each truncation window
+average_hq_cov_per_trunc_window <- combined_data_with_truncs %>%
+  filter(pos >= trunc_start & pos <= trunc_end) %>%
+  group_by(TEfam, replicate, trunc_start, trunc_end) %>%
+  summarise(
+    average_hq_cov = mean(hq_cov, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Calculate the average hq_cov for regions outside of truncation windows
+average_hq_cov_outside_truncs <- combined_data_with_truncs %>%
+  filter(pos < trunc_start | pos > trunc_end) %>%
+  group_by(TEfam, replicate) %>%
+  summarise(
+    average_hq_cov_outside_truncs = mean(hq_cov, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Merge both datasets by TEfam and replicate
+combined_avg_hq_cov <- left_join(
+  average_hq_cov_per_trunc_window, 
+  average_hq_cov_outside_truncs, 
+  by = c("TEfam", "replicate")
+)
+
+# Add a column for coverage ratio
+combined_avg_hq_cov <- combined_avg_hq_cov %>%
+  mutate(
+    coverage_ratio = ((average_hq_cov / average_hq_cov_outside_truncs) * -100) + 100
+  )
+
+# Write the updated table to the output file
+write.table(combined_avg_hq_cov, 
+            "figs/combined_avg_hq_cov.txt", 
+            sep = "\t", 
+            row.names = FALSE, 
+            quote = FALSE)
+
+# Print the updated table
+print(combined_avg_hq_cov)
 
 ```
 
 
-
 ```{R}
-library(ggplot2)
-library(dplyr)
-library(readr)
-library(tidyr)
-library(RColorBrewer)
+library(Biostrings)
 
-# Read the data from a space-delimited file
-data <- read.table(
-  "/Volumes/Data/Projects/dmelR2_p-ele/software/teminer-code-r10/results/mel/deviate/PPI251/dmel_all.PPI251",
-  header = FALSE, # No header in the file
-  sep = "", # Use default whitespace delimiter
-  stringsAsFactors = FALSE,
-  fill = TRUE # Fill incomplete lines
+fasta_file <- "/Volumes/Data/Projects/dmelR2_p-ele/R/dna/data/pele_fasta/PPI251.fasta"
+fasta <- readDNAStringSet(fasta_file)
+
+sequence <- as.character(fasta[[1]])
+header <- names(fasta)[1]
+
+remove_start <- 808  # start position
+remove_end <- 2560    # end position
+
+remaining_sequence <- paste0(
+  substr(sequence, 1, remove_start - 1),
+  substr(sequence, remove_end + 1, nchar(sequence))
 )
 
-# Assign proper column names
-colnames(data) <- c("TEfam", "sample_id", "pos", "refbase", "A", "C", "G", "T",
-                    "cov", "phys_cov", "hq_cov", "snp", "refsnp", "int_del", "int_del_freq",
-                    "trunc_left", "trunc_right", "ins", "delet", "annotation")
-
-# Function to parse Generation
-parse_generation <- function(sample_id) {
-  if (grepl("naive", sample_id)) {
-    return(NA)
-  }
-  match <- regmatches(sample_id, regexec("_R[0-9]+G([0-9]+)", sample_id))
-  if (length(match[[1]]) >= 2) {
-    return(as.numeric(match[[1]][2]))
-  } else {
-    return(NA)
-  }
-}
-
-# Add Replicate and Generation columns
-data <- data %>%
-  mutate(
-    Replicate = ifelse(grepl("naive", sample_id), "Naive", sub(".*_R([0-9]+)G.*", "\\1", sample_id)),
-    Generation = sapply(sample_id, parse_generation)
-  )
-
-# Convert columns to appropriate types
-frame <- data %>%
-  mutate(
-    pos = as.integer(pos),
-    refbase = as.character(refbase),
-    A = as.numeric(A),
-    C = as.numeric(C),
-    G = as.numeric(G),
-    T = as.numeric(T),
-    cov = as.numeric(cov),
-    phys_cov = as.numeric(phys_cov),
-    hq_cov = as.numeric(hq_cov),
-    snp = as.logical(snp),
-    refsnp = as.logical(refsnp),
-    int_del = as.character(int_del),
-    int_del_freq = as.numeric(int_del_freq),
-    trunc_left = as.character(trunc_left),
-    trunc_right = as.character(trunc_right),
-    ins = as.character(ins),
-    delet = as.character(delet),
-    annotation = as.character(annotation)
-  )
-
-# Function to determine the reference allele index
-ref_allele <- function(snp_index, refbases, length) {
-  if (refbases[snp_index] == 'A') {
-    return(snp_index)
-  } else if (refbases[snp_index] == 'C') {
-    return(snp_index + length)
-  } else if (refbases[snp_index] == 'G') {
-    return(snp_index + 2 * length)
-  } else {
-    return(snp_index + 3 * length)
-  }
-}
-
-# Function to create a long format data frame for SNPs
-snp_frame <- function(df) {
-  length <- nrow(df)
-  counts_col <- c(df$A, df$C, df$G, df$T)
-  pos_col <- rep(0:(length - 1), 4)
-  fam_col <- rep(df$TEfam, each = 4)
-  sample_col <- rep(df$sample_id, each = 4)
-  base_col <- rep(c('A', 'C', 'G', 'T'), length)
-  
-  snps <- df %>% filter(snp == TRUE) %>% pull(pos)
-  polys <- as.integer(snps)
-  
-  polys_ref_indices <- sapply(polys, function(idx) ref_allele(idx, df$refbase, length))
-  polys_ref_indices_sorted <- sort(polys_ref_indices)
-  
-  base_col[polys_ref_indices_sorted + 1] <- 'X'  # Adjust for 1-based indexing
-  
-  lf <- data.frame(
-    fam_col = fam_col,
-    sample_col = sample_col,
-    base_col = base_col,
-    pos_col = pos_col,
-    counts_col = counts_col,
-    Generation = df$Generation[1],  # Add Generation here
-    Replicate = df$Replicate[1]    # Add Replicate here
-  )
-  
-  snps_data <- lf %>% filter(pos_col %in% polys)
-  snps_noref <- snps_data %>% filter(base_col != 'X')
-  snps_noref$base_col <- factor(snps_noref$base_col, levels = c('A', 'C', 'G', 'T'))
-  
-  return(snps_noref)
-}
-
-# Process the data frame for visualization
-snp_f <- snp_frame(frame)
-
-# Prepare data for coverage plots
-pg <- frame %>%
-  group_by(sample_id, Generation, Replicate) %>%
-  do({
-    df <- .
-    data.frame(
-      px = c(df$pos, rev(df$pos)),
-      py = c(df$cov, rep(0, length(df$cov))),
-      sample_id = df$sample_id[1],
-      Generation = df$Generation[1],
-      Replicate = df$Replicate[1]
-    )
-  }) %>%
-  ungroup()
-
-pg_hq <- frame %>%
-  group_by(sample_id, Generation, Replicate) %>%
-  do({
-    df <- .
-    data.frame(
-      px = c(df$pos, rev(df$pos)),
-      py = c(df$hq_cov, rep(0, length(df$hq_cov))),
-      sample_id = df$sample_id[1],
-      Generation = df$Generation[1],
-      Replicate = df$Replicate[1]
-    )
-  }) %>%
-  ungroup()
-
-# Define color scheme for the bases using RColorBrewer to generate colors
-base_colors <- brewer.pal(n = 4, name = "Set1")
-
-# Create the base plot with faceting
-baseplot <- ggplot() +
-  geom_polygon(data = pg, aes(x = px, y = py, fill = sample_id), color = 'lightgrey') +
-  geom_polygon(data = pg_hq, aes(x = px, y = py, fill = sample_id), color = 'grey') +
-  geom_bar(data = snp_f, aes(x = pos_col, y = counts_col, fill = base_col), stat = 'identity', width = 1) +
-  labs(fill = '') +
-  ylab("coverage") +
-  xlab("position") +
-  scale_fill_manual(values = base_colors) +
-  facet_grid(Generation ~ Replicate, scales = "fixed", switch = "y", space = "free_y") +
-  theme_minimal() +
-  theme(
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    panel.border = element_rect(color = "black", fill = NA, size = 1),
-    strip.background = element_rect(fill = "grey80", color = "black"),
-    strip.text.y = element_text(size = 10, angle = 0),
-    strip.text.x = element_text(size = 10), 
-    strip.placement = "outside",
-    panel.spacing = unit(0.4, "lines"),
-    legend.position = "bottom",
-    legend.direction = "horizontal"
-  ) +
-  theme(strip.text.y.right = element_text(angle = 0))
-
-# Save the plot as a PNG file
-ggsave("figs/dmel_deviate.png", baseplot, width = 20, height = 15, dpi = 400)
-
-# Print the plot
-print(baseplot)
-
+output_fasta <- "/Volumes/Data/Projects/dmelR2_p-ele/R/dna/data/pele_fasta/PPI251_807-2561_KP.fasta"
+writeLines(c(paste0(">", header), remaining_sequence), con = output_fasta)
+cat("New FASTA file saved to:", output_fasta, "\n")
 ```
