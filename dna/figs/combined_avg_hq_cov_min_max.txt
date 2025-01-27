@@ -1,0 +1,2 @@
+TEfam	max_hq_cov_avg	min_hq_cov_avg
+PPI251	22.1181990310744	5.09479400819339

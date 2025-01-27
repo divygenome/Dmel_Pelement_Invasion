@@ -1,0 +1,4 @@
+TEfam	replicate	average_hq_cov_whole_TE	max_hq_cov_whole_TE	min_hq_cov_whole_TE
+PPI251	R1	22.1181990310744	40.725	6.633
+PPI251	R2	5.09479400819339	21.579	0
+PPI251	R3	18.7740965068643	42.029	7.151
