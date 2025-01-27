@@ -1,0 +1,6 @@
+The intra-population hybrid dysgenesis experiment was performed at every 5th generation until generation 50. 
+We collected the flies, which were 7-10 days old, let them lay eggs for 2 days at 29C, and then removed them. 
+We reared the eggs until adult eclosion. Later, we collected the flies in cages with apple-agar plates and yeast paste and left them in the cages for two days at 25C. 
+Later on, we dissected more than 70 flies (more than 70 pairs of ovaries) to check their development. 
+We scored normal (1), intermediate (0.5) and dysgenic (0) based on their dysgenesis level. 
+We used only one replicate for this experiment and we always had HD control performed for every experiment by making crosses using Harwich (P-strain) and Dm68 (M-strain). 

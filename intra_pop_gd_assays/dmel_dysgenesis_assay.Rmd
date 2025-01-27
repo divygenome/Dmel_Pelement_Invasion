@@ -1,0 +1,48 @@
+---
+title: "D. melanogaster intrapopulation hybrid dysgenesis assay"
+author: "Divya Selvaraju"
+date: "2024-12-12"
+output:
+  rmarkdown::github_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Generate hybrid dysgenesis plot for D. melanogaster
+
+```{R}
+library(ggplot2)
+theme_set(theme_bw())
+
+dys_dm=read.table("/home/divya/Desktop/invasion/mel/Dmel_3R_3TP.tsv",header=TRUE)
+print(dys_dm)
+
+dys_dmel=data.frame(dys_dm$Replicate, dys_dm$Generation,dys_dm$Dys_percentile)
+names(dys_dmel)[1]<-"replicate"
+names(dys_dmel)[2]<-"generation"
+names(dys_dmel)[3]<-"dys_percent"
+dys_dmel$dys_percent=as.numeric(gsub("%", "", dys_dmel$dys_percent))
+dys_dmel$generation=as.numeric(gsub("G", "", dys_dmel$generation))
+
+print(dys_dmel)
+
+p1=ggplot(dys_dmel,aes(x=generation,y=dys_percent))+geom_line(aes(color=replicate))+geom_point(aes(color=replicate))+ ggtitle("dmel_dysgenesis")+ xlab("generations")+ylab("fraction of dysgenesis") + scale_color_manual(values=c ("firebrick", "skyblue3","chartreuse4"))
+
+plot(p1)
+
+
+## Generate Plots for manuscript
+
+png("dmel_dys.png", width = 30, height = 20, units = "cm", res = 100)
+print(p1)
+dev.off()
+
+postscript("dmel_dys.eps", family = "ArialMT", width = 30, height = 20)
+print(p1)
+dev.off()
+
+
+```
