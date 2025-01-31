@@ -163,19 +163,17 @@ knitr::include_graphics("figs/HD_BG.png")
 
 ```
 
-# Testing for significance - R2 reciprocal vs Intra-population
+# Testing for significance - R2 - reciprocal vs Intra-population
 
 ```{R}
-# R2xDM68 vs Intra-pop dysgen %s
 group1 <- c(4, 9, 8)
 group2 <- c(28, 14, 12)
 
-# Perform Welch's t-test (default in t.test)
+qqnorm(group1); qqline(group1, col = "red")
+qqnorm(group2); qqline(group2, col = "red")
+
 t_test_result <- t.test(group1, group2)
 print(t_test_result)
-
-
-wilcox.test(group1, group2, alternative = "two.sided")
 
 ```
 
